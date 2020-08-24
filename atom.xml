@@ -4,7 +4,7 @@
   <title><![CDATA[B1ueB0ne]]></title>
   <link href="https://www.uxss.net/atom.xml" rel="self"/>
   <link href="https://www.uxss.net/"/>
-  <updated>2020-08-24T18:31:01+08:00</updated>
+  <updated>2020-08-24T19:57:17+08:00</updated>
   <id>https://www.uxss.net/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -1393,6 +1393,8 @@ weighted avg       0.96      0.96      0.96      2000
     <updated>2018-10-03T23:42:27+08:00</updated>
     <id>https://www.uxss.net/15385813470879.html</id>
     <content type="html"><![CDATA[
+<p><img src="media/15387556906580/15982653615268.jpg" alt=""/></p>
+
 <p>Domain generation algorithms (DGA) are algorithms seen in various families of malware that are used to periodically generate a large number of domain names that can be used as rendezvous points with their command and control servers. </p>
 
 <span id="more"></span><!-- more -->
