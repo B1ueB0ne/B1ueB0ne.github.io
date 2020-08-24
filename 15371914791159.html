@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [机器学习笔记]Naive Bayes（NB） - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[机器学习笔记]Naive Bayes（NB）</h1>	
+				<div class="post-data">
+					<time datetime="2018-09-17T21:37:59+08:00" pubdate data-updated="true">2018/09/17</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0.html'>机器学习</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>朴素：整个形式化的过程只做最原始、最简单的假设</p>
+
+<span id="more"></span><!-- more -->
+
+<h4 id="toc_0">0x01 NB</h4>
+
+<p>朴素：整个形式化的过程只做最原始、最简单的假设</p>
+
+<p>优点</p>
+
+<ul>
+<li>数据较少情况下仍然有效</li>
+<li>可以处理多类别问题</li>
+</ul>
+
+<p>缺点</p>
+
+<ul>
+<li>对于输入数据的处理方式比较敏感</li>
+</ul>
+
+<p>适用数据类型</p>
+
+<ul>
+<li>标称型</li>
+</ul>
+
+<h4 id="toc_1">0x02 贝叶斯决策理论</h4>
+
+<p>计算数据点属于每个类别的概率，并进行比较，选择具有最高概率的决策</p>
+
+<p><strong>条件概率</strong></p>
+
+<p>推导过程</p>
+
+<p><img src="media/15371914791159/15371937340058.jpg" alt=""/></p>
+
+<p><img src="media/15371914791159/15371937397573.jpg" alt=""/></p>
+
+<p><img src="media/15371914791159/15371937656472.jpg" alt=""/></p>
+
+<p><img src="media/15371914791159/15371937826699.jpg" alt=""/></p>
+
+<p><img src="media/15371914791159/15371937881588.jpg" alt=""/></p>
+
+<h4 id="toc_2">0x03 构建文档分类器</h4>
+
+<p>两个假设</p>
+
+<ul>
+<li>特征之间相互独立（统计意义上的独立）</li>
+<li>每个特征同等重要</li>
+</ul>
+
+<p><strong>word2vec</strong></p>
+
+<pre><code class="language-text">def loadDataSet():
+    &#39;&#39;&#39;
+    测试数据
+    :return: 
+    &#39;&#39;&#39;
+    postingList = [[&#39;my&#39;, &#39;dog&#39;, &#39;has&#39;, &#39;flea&#39;, &#39;problems&#39;, &#39;help&#39;, &#39;please&#39;],
+                 [&#39;maybe&#39;, &#39;not&#39;, &#39;take&#39;, &#39;him&#39;, &#39;to&#39;, &#39;dog&#39;, &#39;park&#39;, &#39;stupid&#39;],
+                 [&#39;my&#39;, &#39;dalmation&#39;, &#39;is&#39;, &#39;so&#39;, &#39;cute&#39;, &#39;I&#39;, &#39;love&#39;, &#39;him&#39;],
+                 [&#39;stop&#39;, &#39;posting&#39;, &#39;stupid&#39;, &#39;worthless&#39;, &#39;garbage&#39;],
+                 [&#39;mr&#39;, &#39;licks&#39;, &#39;ate&#39;, &#39;my&#39;, &#39;steak&#39;, &#39;how&#39;, &#39;to&#39;, &#39;stop&#39;, &#39;him&#39;],
+                 [&#39;quit&#39;, &#39;buying&#39;, &#39;worthless&#39;, &#39;dog&#39;, &#39;food&#39;, &#39;stupid&#39;]]
+    classVec = [0, 1, 0, 1, 0, 1]  #是否包含侮辱性词语，为1
+    return postingList, classVec
+                 
+def createVocabList(dataSet):
+    &#39;&#39;&#39;
+    创建dataSet的不重复词列表
+    :param dataSet: 
+    :return: 
+    &#39;&#39;&#39;
+    vocabSet = set([])
+    for document in dataSet:
+        vocabSet = vocabSet | set(document)
+    return list(vocabSet)
+
+def setOfWords2Vec(vocabList, inputSet):
+    &#39;&#39;&#39;
+    :param vocabList: 不重复词列表
+    :param inputSet: 某文档
+    :return: 文档向量
+    &#39;&#39;&#39;
+    returnVec = [0]*len(vocabList) #创建一个长度和vocabList相等的全部为0的向量
+    for word in inputSet:
+        if word in vocabList:
+            returnVec[vocabList.index(word)] = 1
+        else:
+            print(&quot;the word: %s is not in my Vocabulary!&quot; % word)
+    return returnVec #[0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+</code></pre>
+
+<p><strong>训练算法</strong></p>
+
+<ul>
+<li>从词向量计算概率</li>
+</ul>
+
+<pre><code class="language-text">    for postdoc in postingList:
+        trainmat.append(setOfWords2Vec(vocablist, postdoc))
+</code></pre>
+
+<p><img src="media/15371914791159/15372608870667.jpg" alt=""/></p>
+
+<p>通过setOfWords2Vec方法对文档进行处理，返回文档向量</p>
+
+<pre><code class="language-text">def trainNB0(trainMatrix,trainCategory):
+    numTrainDocs = len(trainMatrix) #6 文档矩阵的行数
+    numWords = len(trainMatrix[0]) #32 矩阵的长度
+    pAbusive = sum(trainCategory)/float(numTrainDocs) #3/6  文档属于侮辱类型的概率
+    p0Num = ones(numWords) #ones函数可以创建任意维度和元素个数的数组，其元素值均为1
+    p1Num = ones(numWords)
+    p0Denom = 0.0
+    p1Denom = 0.0
+    for i in range(numTrainDocs):
+        if trainCategory[i] == 1:
+            p1Num += trainMatrix[i] #如果标签为侮辱性的，则两个列表相加
+            p1Denom += sum(trainMatrix[i]) #侮辱性文档的词数相加
+        else:
+            p0Num += trainMatrix[i]
+            p0Denom += sum(trainMatrix[i])
+    #p1num：[2. 2. 1. 1. 1. 1. 2. 1. 1. 2. 2. 1. 1. 1. 4. 2. 3. 2. 1. 1. 1. 1. 2. 2.
+ 2. 2. 1. 1. 1. 2. 1. 3.]
+    #p1Demon：19.0
+    p1Vect = log(p1Num/p1Denom)          #将单个词的数目除以总词数得到条件概率
+    p0Vect = log(p0Num/p0Denom)
+    return p0Vect, p1Vect, pAbusive
+</code></pre>
+
+<p><img src="media/15371914791159/15372610382692.jpg" alt=""/></p>
+
+<p><code>概率向量</code>：在给定文档类别条件下词汇表中单词的出现概率<br/>
+<code>p0Vect</code>:正常文档的概率向量<br/>
+<code>p1Vect</code>:侮辱性文档概率向量<br/>
+<code>pAbusive</code>:侮辱文档的概率</p>
+
+<ul>
+<li>概率值为0问题</li>
+</ul>
+
+<p>利用贝叶斯分类器对文档进行分类时，要计算多个概率的乘积以获得文档属于某个类别的概率，即计算p(w0|1)p(w1|1)p(w2|1)。如果其中一个概率值为0，那么最后的乘积也为0。为降低 这种影响，可以将所有词的出现数初始化为1，并将分母初始化为2</p>
+
+<pre><code class="language-text">p0Denom = 2.0
+p1Denom = 2.0
+</code></pre>
+
+<ul>
+<li>下溢出问题</li>
+</ul>
+
+<p>相乘许多很小的数，最后四舍五入后会得到0</p>
+
+<p><code>p(w0|ci)*p(w1|ci)*...*p(w0|ci)</code> 取对数，得到<code>ln(p(w0|ci))+ln(p(w1|ci))+...+ln(p(w0|ci))</code></p>
+
+<pre><code class="language-text">p1Vect = log(p1Num/p1Denom)         
+p0Vect = log(p0Num/p0Denom)
+</code></pre>
+
+<p><strong>测试算法</strong></p>
+
+<p><img src="media/15371914791159/15372632355434.jpg" alt=""/></p>
+
+<p><img src="media/15371914791159/15372632623577.jpg" alt=""/><br/>
+的含义为给定w向量的基础上来自类别ci的概率是多少</p>
+
+<p>p(ci)的概率为<code>pAbusive</code><br/>
+接下来需要计算p(w|ci)，假设所有词都互相独立，即<br/>
+<code>p(w0,w1,w2..wN|ci)=p(w0|ci)p(w1|ci)p(w2|ci)...p(wN|ci)</code></p>
+
+<p>因为P(w)P(ci)两者是一样的，可以忽略</p>
+
+<p>因为<code>log(p(w|c)p(c)) = log(p(w|c)) + log(p(c))</code>，所以在classifyNB方法中求和</p>
+
+<pre><code class="language-text">def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
+    &#39;&#39;&#39;
+    元素相乘
+    :param vec2Classify:要分类的向量
+    :param p0Vec:正常文档概率向量
+    :param p1Vec:侮辱文档概率向量
+    :param pClass1:侮辱文档的概率
+    :return:1 or 0
+    &#39;&#39;&#39;
+    p1 = sum(vec2Classify * p1Vec) + log(pClass1)
+    p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
+    if p1 &gt; p0:
+        return 1
+    else: 
+        return 0
+</code></pre>
+
+<p><strong>便利函数</strong></p>
+
+<pre><code class="language-text">def testingNB():
+    listOPosts,listClasses = loadDataSet()
+    myVocabList = createVocabList(listOPosts)
+    trainMat=[]
+    for postinDoc in listOPosts:
+        trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
+    p0V,p1V,pAb = trainNB0(array(trainMat), array(listClasses))
+    testEntry = [&#39;love&#39;, &#39;my&#39;, &#39;dalmation&#39;]
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
+    print(testEntry, &#39;classified as: &#39;, classifyNB(thisDoc, p0V, p1V, pAb))
+    testEntry = [&#39;stupid&#39;, &#39;garbage&#39;]
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
+    print(testEntry, &#39;classified as: &#39;, classifyNB(thisDoc, p0V, p1V, pAb))
+</code></pre>
+
+<p><img src="media/15371914791159/15372709062992.jpg" alt=""/></p>
+
+<ul>
+<li>词袋模型</li>
+</ul>
+
+<p>在词袋中，每个单词可以出现 多次，而在词集中，每个词只能出现一次</p>
+
+<p>每当遇到一个单词时，词向量中的对应值会+1</p>
+
+<pre><code class="language-text">def bagOfWords2VecMN(vocabList, inputSet):
+    returnVec = [0]*len(vocabList)
+    for word in inputSet:
+        if word in vocabList:
+            returnVec[vocabList.index(word)] += 1
+    return returnVec
+</code></pre>
+
+<h4 id="toc_3">0x04 Action 1</h4>
+
+<p>垃圾邮件判断</p>
+
+<pre><code class="language-text">def textParse(bigString):
+    &#39;&#39;&#39;
+    简单分词处理
+    :param bigString: 
+    :return: 
+    &#39;&#39;&#39;
+    import re
+    listOfTokens = re.split(&#39;\W*&#39;, bigString)
+    return [tok.lower() for tok in listOfTokens if len(tok) &gt; 2] #取长度大于3，转化为小写
+    
+def spamTest():
+    &#39;&#39;&#39;
+    数据输入
+    处理
+    分割
+    训练
+    测试
+    :return: 
+    &#39;&#39;&#39;
+    docList=[]
+    classList = []
+    fullText = []
+    for i in range(1, 26):
+        wordList = textParse(open(&#39;email/spam/%d.txt&#39; % i, &#39;rb&#39;).read().decode(&#39;GBK&#39;, &#39;ignore&#39;))
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(1)
+        wordList = textParse(open(&#39;email/ham/%d.txt&#39; % i, &#39;rb&#39;).read().decode(&#39;GBK&#39;, &#39;ignore&#39;))
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(0)
+    vocabList = createVocabList(docList) #创建不重复词表
+    trainingSet = list(range(50)) #[0, 1, 2, 3, 4, 5, 6, 7, 8...44, 45, 46, 47, 48, 49]
+    testSet=[]
+    for i in range(10): #随机选择10条数据作为测试集
+        randIndex = int(random.uniform(0, len(trainingSet)))
+        testSet.append(trainingSet[randIndex])
+        del(trainingSet[randIndex])  
+    trainMat = []
+    trainClasses = []
+    for docIndex in trainingSet: # 训练集
+        trainMat.append(bagOfWords2VecMN(vocabList, docList[docIndex])) #词袋模型，构建词向量
+        trainClasses.append(classList[docIndex])
+    p0V, p1V, pSpam = trainNB0(array(trainMat), array(trainClasses))
+    errorCount = 0
+    for docIndex in testSet: # 测试集
+        wordVector = bagOfWords2VecMN(vocabList, docList[docIndex])
+        if classifyNB(array(wordVector), p0V, p1V, pSpam) != classList[docIndex]:
+            errorCount += 1
+            print(&quot;classification error&quot;, docList[docIndex])
+    print(&#39;the error rate is: &#39;, float(errorCount)/len(testSet))
+</code></pre>
+
+<hr/>
+
+<p><strong>参考</strong></p>
+
+<p>[1] <a href="https://www.manning.com/books/machine-learning-in-action">https://www.manning.com/books/machine-learning-in-action</a></p>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-09-17T21:37:59+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15372846889079.html" 
+					        title="Previous Post: [机器学习笔记]Logistic Regression">&laquo; [机器学习笔记]Logistic Regression</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15367537328088.html" 
+					        title="Next Post: [机器学习笔记]Decision Tree（DT）">[机器学习笔记]Decision Tree（DT） &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

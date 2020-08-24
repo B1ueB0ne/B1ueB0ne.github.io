@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [机器学习笔记]DGA Domain Detection 2 - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[机器学习笔记]DGA Domain Detection 2</h1>	
+				<div class="post-data">
+					<time datetime="2018-10-07T00:08:10+08:00" pubdate data-updated="true">2018/10/07</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0.html'>机器学习</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p><img src="media/15387556906580/15982653615268.jpg" alt=""/></p>
+
+<p>接上文 <a href="https://uxss.net/DGA%20Domain%20Detection%20%5BRandom%20Forest%5D.html">DGA Domain Detection 1</a></p>
+
+<span id="more"></span><!-- more -->
+
+<pre><code class="language-python">import os
+import random
+import tldextract
+import sklearn
+import pandas as pd
+import numpy as np
+
+from keras.models import Sequential, load_model
+from keras.preprocessing import sequence
+from keras.layers.core import Dense, Dropout, Activation
+from keras.layers.embeddings import Embedding
+from keras.layers.recurrent import LSTM
+from sklearn import feature_extraction
+from sklearn.model_selection import train_test_split
+from datetime import datetime
+from zipfile import ZipFile
+</code></pre>
+
+<pre><code class="language-python">alexa_dataframe = pd.read_csv(&#39;data/top-1m.csv&#39;, names=[&#39;rank&#39;,&#39;uri&#39;], header=None, encoding=&#39;utf-8&#39;)
+alexa_dataframe.info()
+alexa_dataframe.head()
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 1000000 entries, 0 to 999999
+Data columns (total 2 columns):
+rank    1000000 non-null int64
+uri     1000000 non-null object
+dtypes: int64(1), object(1)
+memory usage: 15.3+ MB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>uri</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>google.com</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>youtube.com</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>facebook.com</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>baidu.com</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>wikipedia.org</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">def load_data_set(filename):
+    fw = open(&#39;data/dga_domain.txt&#39;, &#39;w+&#39;)
+    with open(filename, &quot;r&quot;) as f:
+        for line in f.readlines():
+            lineArr = line.strip().split(&#39;\t&#39;)
+            fw.write(lineArr[1] + &#39;\n&#39;)
+    fw.close()
+load_data_set(&#39;data/dga.txt&#39;)
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe = pd.read_csv(&#39;data/dga_domain.txt&#39;, names=[&#39;raw_domain&#39;], header=None, encoding=&#39;utf-8&#39;)
+dga_dataframe.info()
+dga_dataframe.head()
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 1158695 entries, 0 to 1158694
+Data columns (total 1 columns):
+raw_domain    1158695 non-null object
+dtypes: object(1)
+memory usage: 8.8+ MB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>raw_domain</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ogxbnjopz.biz</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>zyejwiist.net</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>buuqogz.com</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>vpjmomduqll.org</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>uakwifutnpn.biz</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">def domain_extract(uri):
+    ext = tldextract.extract(uri)
+    if (not ext.suffix):
+        return None
+    else:
+        return ext.domain
+    
+alexa_dataframe[&#39;domain&#39;] = [ domain_extract(uri) for uri in alexa_dataframe[&#39;uri&#39;]]
+del alexa_dataframe[&#39;rank&#39;]
+del alexa_dataframe[&#39;uri&#39;]
+alexa_dataframe = alexa_dataframe.dropna()
+alexa_dataframe = alexa_dataframe.drop_duplicates()
+alexa_dataframe[&#39;length&#39;] = [len(x) for x in alexa_dataframe[&#39;domain&#39;]]
+alexa_dataframe = alexa_dataframe[alexa_dataframe[&#39;length&#39;] &gt; 6]
+alexa_dataframe.info()
+alexa_dataframe.head()
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+Int64Index: 718018 entries, 1 to 999999
+Data columns (total 2 columns):
+domain    718018 non-null object
+length    718018 non-null int64
+dtypes: int64(1), object(1)
+memory usage: 16.4+ MB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>length</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>youtube</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>facebook</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>wikipedia</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>instagram</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>twitter</td>
+      <td>7</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">alexa_dataframe[&#39;class&#39;] = &#39;legit&#39;
+#对正常数据打标legit
+alexa_dataframe.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>length</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>youtube</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>facebook</td>
+      <td>8</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>wikipedia</td>
+      <td>9</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>instagram</td>
+      <td>9</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>twitter</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python"># Shuffle the data (important for training/testing)
+alexa_dataframe = alexa_dataframe.reindex(np.random.permutation(alexa_dataframe.index))
+#打乱循序，重新索引
+#Randomly permute a sequence, or return a permuted range
+alexa_total = alexa_dataframe.shape[0]
+print(&#39;Total Alexa domains %d&#39; % alexa_total)
+</code></pre>
+
+<pre><code class="language-text">Total Alexa domains 718018
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe[&#39;domain&#39;] = dga_dataframe.applymap(lambda x: x.split(&#39;.&#39;)[0].strip().lower())
+#This method applies a function that accepts and returns a scalar to every element of a DataFrame.
+del dga_dataframe[&#39;raw_domain&#39;]
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe = dga_dataframe.dropna()
+dga_dataframe = dga_dataframe.drop_duplicates()
+dga_dataframe[&#39;length&#39;] = [len(x) for x in dga_dataframe[&#39;domain&#39;]]
+dga_dataframe = dga_dataframe[dga_dataframe[&#39;length&#39;] &gt; 6]
+dga_total = dga_dataframe.shape[0]
+print(&#39;Total DGA domains %d&#39; % dga_total)
+</code></pre>
+
+<pre><code class="language-text">Total DGA domains 1082010
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe[&#39;class&#39;] = &#39;dga&#39;
+dga_dataframe.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>length</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ogxbnjopz</td>
+      <td>9</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>zyejwiist</td>
+      <td>9</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>buuqogz</td>
+      <td>7</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>vpjmomduqll</td>
+      <td>11</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>uakwifutnpn</td>
+      <td>11</td>
+      <td>dga</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">all_domains = pd.concat([alexa_dataframe[:5000], dga_dataframe[:5000]], ignore_index=True)
+#
+all_domains.head(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>length</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>youtube</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>facebook</td>
+      <td>8</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>wikipedia</td>
+      <td>9</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>instagram</td>
+      <td>9</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>twitter</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>blogspot</td>
+      <td>8</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>netflix</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>pornhub</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>xvideos</td>
+      <td>7</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>livejasmin</td>
+      <td>10</td>
+      <td>legit</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">all_domains.tail(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>length</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>9990</th>
+      <td>mxepwpxki</td>
+      <td>9</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9991</th>
+      <td>xnvqgaddhivrqowtbs</td>
+      <td>18</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9992</th>
+      <td>btgjyoydcwoeigdldngr</td>
+      <td>20</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9993</th>
+      <td>mnnridfyhxkyk</td>
+      <td>13</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9994</th>
+      <td>jmcctiodbdemfejo</td>
+      <td>16</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9995</th>
+      <td>mepoiwtmeffy</td>
+      <td>12</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9996</th>
+      <td>iwpikrmppfqeere</td>
+      <td>15</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9997</th>
+      <td>gcibdmrs</td>
+      <td>8</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9998</th>
+      <td>tusdspujigdyntbxusuah</td>
+      <td>21</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>9999</th>
+      <td>wvsiuqhblxfijnoefjnao</td>
+      <td>21</td>
+      <td>dga</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">X = all_domains[&#39;domain&#39;]
+labels = all_domains[&#39;class&#39;]
+</code></pre>
+
+<pre><code class="language-python">ngram_vectorizer = feature_extraction.text.CountVectorizer(analyzer=&#39;char&#39;, ngram_range=(2, 2))
+count_vec = ngram_vectorizer.fit_transform(X)
+max_features = count_vec.shape[1]
+</code></pre>
+
+<pre><code class="language-python">y = [0 if x == &#39;legit&#39; else 1 for x in labels]
+</code></pre>
+
+<pre><code class="language-python">final_data = []
+</code></pre>
+
+<h4 id="toc_0">多层感知机（MLP）</h4>
+
+<pre><code class="language-python">def build_model(max_features):
+    model = Sequential()
+    model.add(Dense(1, input_dim=max_features, activation=&#39;sigmoid&#39;))
+    #添加一个全连接层，激活函数使用sigmoid，输出维度max_features
+    model.compile(loss=&#39;binary_crossentropy&#39;,optimizer=&#39;adam&#39;)
+    #编译模型，损失函数采用对数损失函数，优化器选用adam
+    return model
+</code></pre>
+
+<pre><code class="language-python">max_epoch = 50
+nfolds = 10
+#10轮训练
+batch_size = 128
+</code></pre>
+
+<pre><code class="language-python">for fold in range(nfolds):
+    print(&quot;fold %u/%u&quot; % (fold+1, nfolds))
+    X_train, X_test, y_train, y_test, _, label_test = train_test_split(count_vec, y, labels, test_size=0.2)
+
+    print(&#39;Build model...&#39;)
+    model = build_model(max_features)
+
+    print(&quot;Train...&quot;)
+    X_train, X_holdout, y_train, y_holdout = train_test_split(X_train, y_train, test_size=0.05)
+    best_iter = -1
+    best_auc = 0.0
+    out_data = {}
+
+    for ep in range(max_epoch):
+        model.fit(X_train.todense(), y_train, batch_size=batch_size, nb_epoch=1)
+        t_probs = model.predict_proba(X_holdout.todense())
+        t_auc = sklearn.metrics.roc_auc_score(y_holdout, t_probs)
+        #计算AUC值
+
+        print(&#39;Epoch %d: auc = %f (best=%f)&#39; % (ep, t_auc, best_auc))
+        if t_auc &gt; best_auc:
+            best_auc = t_auc
+            best_iter = ep
+
+            probs = model.predict_proba(X_test.todense())
+            out_data = {&#39;y&#39;:y_test, &#39;labels&#39;: label_test, &#39;probs&#39;:probs, &#39;epochs&#39;: ep,
+                            &#39;confusion_matrix&#39;: sklearn.metrics.confusion_matrix(y_test, probs &gt; .5)}
+            print(sklearn.metrics.confusion_matrix(y_test, probs &gt; .5))
+        else:
+            if (ep-best_iter) &gt; 5:
+                break
+
+    final_data.append(out_data)
+    model.save(&#39;model.h5&#39;)
+</code></pre>
+
+<pre><code class="language-text">fold 1/10
+Build model...
+Train...
+
+
+/usr/lib/python3/dist-packages/ipykernel_launcher.py:15: UserWarning: The `nb_epoch` argument in `fit` has been renamed `epochs`.
+  from ipykernel import kernelapp as app
+
+
+Epoch 1/1
+7600/7600 [==============================] - 1s 86us/step - loss: 0.6297
+Epoch 0: auc = 0.950239 (best=0.000000)
+[[915  86]
+ [108 891]]
+Epoch 1/1
+7600/7600 [==============================] - 0s 26us/step - loss: 0.5243
+Epoch 1: auc = 0.980196 (best=0.950239)
+[[952  49]
+ [ 83 916]]
+Epoch 1/1
+7600/7600 [==============================] - 0s 31us/step - loss: 0.4502
+Epoch 2: auc = 0.984872 (best=0.980196)
+[[965  36]
+ [ 78 921]]
+Epoch 1/1
+7600/7600 
+
+Epoch 32: auc = 0.994192 (best=0.994192)
+</code></pre>
+
+<pre><code class="language-python">model = load_model(&#39;model.h5&#39;)
+</code></pre>
+
+<pre><code class="language-python">print(final_data)
+</code></pre>
+
+<pre><code class="language-text">[{&#39;y&#39;: [0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1], &#39;labels&#39;: 2403    legit
+2789    legit
+450     legit
+4521    legit
+2841    legit
+8645      dga
+6999      dga
+7831      dga
+6291      dga
+3746    legit
+6226      dga
+4111    legit
+8487      dga
+678     legit
+90      legit
+6151      dga
+8300      dga
+4004    legit
+2489    legit
+4836    legit
+8291      dga
+8198      dga
+8911      dga
+7585      dga
+260     legit
+5905      dga
+5646      dga
+970     legit
+8718      dga
+275     legit
+        ...  
+8589      dga
+6620      dga
+7470      dga
+5230      dga
+4827    legit
+5677      dga
+3417    legit
+8539      dga
+7147      dga
+3699    legit
+4751    legit
+3043    legit
+5475      dga
+3736    legit
+3887    legit
+6349      dga
+4996    legit
+7379      dga
+3530    legit
+1942    legit
+7914      dga
+9752      dga
+6717      dga
+5363      dga
+7622      dga
+961     legit
+1641    legit
+4607    legit
+8649      dga
+6087      dga
+Name: class, Length: 2000, dtype: object, &#39;probs&#39;: array([[0.14488636],
+       [0.00496732],
+       [0.00896166],
+       ...,
+       [0.00593334],
+       [0.95598286],
+       [0.9867235 ]], dtype=float32), &#39;epochs&#39;: 43, &#39;confusion_matrix&#39;: array([[972,  29],
+       [ 62, 937]])}
+</code></pre>
+
+<pre><code class="language-python">z_test = np.array([[0, 0, 0, 0, 0,  0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1]])
+model.predict(z_test)
+</code></pre>
+
+<pre><code class="language-text">array([[1.]], dtype=float32)
+</code></pre>
+
+<pre><code class="language-python">print(sklearn.metrics.classification_report(final_data[0][&#39;y&#39;], final_data[0][&#39;probs&#39;] &gt; .5))
+</code></pre>
+
+<pre><code class="language-text">              precision    recall  f1-score   support
+
+           0       0.95      0.97      0.96       970
+           1       0.97      0.95      0.96      1030
+
+   micro avg       0.96      0.96      0.96      2000
+   macro avg       0.96      0.96      0.96      2000
+weighted avg       0.96      0.96      0.96      2000
+</code></pre>
+
+<h4 id="toc_1">LSTM</h4>
+
+<pre><code class="language-python">def build_model_lstm(max_features, maxlen):
+    &quot;&quot;&quot;Build LSTM model&quot;&quot;&quot;
+    model = Sequential()
+    model.add(Embedding(max_features, 128, input_length=maxlen))
+    #添加一个嵌入层，嵌入层是将正整数（下标）转换为具有固定大小的向量
+    model.add(LSTM(128))
+    #添加长短期记忆网络LSTM，从样本中学习特征，这个是核心层
+    model.add(Dropout(0.5))
+    #添加Dropout层防止过拟合
+    model.add(Dense(1))
+    model.add(Activation(&#39;sigmoid&#39;))
+
+    model.compile(loss=&#39;binary_crossentropy&#39;, optimizer=&#39;rmsprop&#39;)
+    #编译模型，损失函数采用对数损失函数，优化器选用rmsprop
+
+    return model
+</code></pre>
+
+<pre><code class="language-python">X = all_domains[&#39;domain&#39;]
+labels = all_domains[&#39;class&#39;]
+
+valid_chars = {x:idx+1 for idx, x in enumerate(set(&#39;&#39;.join(X)))}
+max_features = len(valid_chars) + 1
+#计算特征字符长度
+maxlen = np.max([len(x) for x in X])
+#记录最长的域名长度
+X = [[valid_chars[y] for y in x] for x in X]
+#转换为下标数组
+X = sequence.pad_sequences(X, maxlen=maxlen)
+#进行长度填充
+y = [0 if x == &#39;legit&#39; else 1 for x in labels]
+final_data = []
+</code></pre>
+
+<pre><code class="language-python">for fold in range(nfolds):
+    print(&quot;fold %u/%u&quot; % (fold+1, nfolds))
+    X_train, X_test, y_train, y_test, _, label_test = train_test_split(X, y, labels, 
+                                                                           test_size=0.2)
+
+    print(&#39;Build model...&#39;)
+    model = build_model_lstm(max_features, maxlen)
+
+    print(&quot;Train...&quot;)
+    X_train, X_holdout, y_train, y_holdout = train_test_split(X_train, y_train, test_size=0.05)
+    best_iter = -1
+    best_auc = 0.0
+    out_data = {}
+
+    for ep in range(max_epoch):
+        model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1)
+
+        t_probs = model.predict_proba(X_holdout)
+        t_auc = sklearn.metrics.roc_auc_score(y_holdout, t_probs)
+
+        print(&#39;Epoch %d: auc = %f (best=%f)&#39; % (ep, t_auc, best_auc))
+
+        if t_auc &gt; best_auc:
+            best_auc = t_auc
+            best_iter = ep
+
+            probs = model.predict_proba(X_test)
+
+            out_data = {&#39;y&#39;:y_test, &#39;labels&#39;: label_test, &#39;probs&#39;:probs, &#39;epochs&#39;: ep, &#39;confusion_matrix&#39;: sklearn.metrics.confusion_matrix(y_test, probs &gt; .5)}
+
+            print(sklearn.metrics.confusion_matrix(y_test, probs &gt; .5))
+        else:
+            if (ep-best_iter) &gt; 2:
+                break
+
+    final_data.append(out_data)
+</code></pre>
+
+<pre><code class="language-text">fold 1/10
+Build model...
+Train...
+
+Epoch 1/1
+7600/7600 [==============================] - 24s 3ms/step - loss: 0.3562
+Epoch 0: auc = 0.979725 (best=0.000000)
+[[893 113]
+ [ 42 952]]
+Epoch 1/1
+7600/7600 [==============================] - 23s 3ms/step - loss: 0.1643
+Epoch 7: auc = 0.980221 (best=0.981659)
+Epoch 1/1
+7600/7600 [==============================] - 21s 3ms/step - loss: 0.1603
+Epoch 8: auc = 0.979843 (best=0.981659)
+</code></pre>
+
+<pre><code class="language-python">print(sklearn.metrics.classification_report(final_data[0][&#39;y&#39;], final_data[0][&#39;probs&#39;] &gt; .5))
+</code></pre>
+
+<pre><code class="language-text">              precision    recall  f1-score   support
+
+           0       0.95      0.96      0.96      1006
+           1       0.96      0.95      0.95       994
+
+   micro avg       0.96      0.96      0.96      2000
+   macro avg       0.96      0.96      0.96      2000
+weighted avg       0.96      0.96      0.96      2000
+</code></pre>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-10-06T00:08:10+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15982364930555.html" 
+					        title="Previous Post: [安全建设]从SOAR(安全编排自动化与响应)中求解安全运营之法">&laquo; [安全建设]从SOAR(安全编排自动化与响应)中求解安全运营之法</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15385813470879.html" 
+					        title="Next Post: [机器学习笔记]DGA Domain Detection 1">[机器学习笔记]DGA Domain Detection 1 &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

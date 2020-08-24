@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [机器学习笔记]DGA Domain Detection 1 - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[机器学习笔记]DGA Domain Detection 1</h1>	
+				<div class="post-data">
+					<time datetime="2018-10-05T23:42:27+08:00" pubdate data-updated="true">2018/10/05</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0.html'>机器学习</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>Domain generation algorithms (DGA) are algorithms seen in various families of malware that are used to periodically generate a large number of domain names that can be used as rendezvous points with their command and control servers. </p>
+
+<span id="more"></span><!-- more -->
+
+<h4 id="toc_0">0x01 Domain Generating Algorithm</h4>
+
+<p>Domain generation algorithms (DGA) are algorithms seen in various families of malware that are used to periodically generate a large number of domain names that can be used as rendezvous points with their command and control servers. </p>
+
+<p><a href="https://github.com/pchaigno/dga-collection/tree/master/dgacollection">Example</a></p>
+
+<ul>
+<li><a href="https://seclab.cs.ucsb.edu/media/uploads/papers/torpig.pdf">Torpig</a></li>
+<li><a href="http://vrt-blog.snort.org/2014/03/decoding-domain-generation-algorithms.html">ZeusBot</a></li>
+<li><a href="https://blog.fortinet.com/post/a-closer-look-at-cryptolocker-s-dga">Cryptolocker</a></li>
+<li><a href="http://www.johannesbader.ch/2015/02/the-dgas-of-necurs/">Necurs</a></li>
+<li><a href="http://www.johannesbader.ch/2015/01/the-dga-of-symmi/">Symmi</a></li>
+<li><a href="http://www.johannesbader.ch/2015/05/the-dga-of-ranbyus/">Ranbyus</a></li>
+</ul>
+
+<h4 id="toc_1">0x02 Random Forest</h4>
+
+<p>random forest = bagging + decision trees</p>
+
+<h4 id="toc_2">0x03 code</h4>
+
+<ul>
+<li><p>Random Forest</p></li>
+<li><p>MultinomialNB</p></li>
+</ul>
+
+<pre><code class="language-python">import os, sys
+import traceback
+import json
+import optparse
+import pickle
+import collections
+import sklearn
+import sklearn.feature_extraction
+import sklearn.ensemble
+import sklearn.metrics
+import pandas as pd
+import numpy as np
+import tldextract
+import math
+import operator
+from sklearn.model_selection import train_test_split
+from matplotlib import pylab
+from pylab import *
+</code></pre>
+
+<p>收集数据</p>
+
+<pre><code class="language-python">alexa_dataframe = pd.read_csv(&#39;data/alexa_100k.csv&#39;, names=[&#39;rank&#39;,&#39;uri&#39;], header=None, encoding=&#39;utf-8&#39;)
+alexa_dataframe.info()
+alexa_dataframe.head()
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 100000 entries, 0 to 99999
+Data columns (total 2 columns):
+rank    100000 non-null int64
+uri     100000 non-null object
+dtypes: int64(1), object(1)
+memory usage: 1.5+ MB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>uri</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>facebook.com</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>google.com</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>youtube.com</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>yahoo.com</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>baidu.com</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">dga_dataframe = pd.read_csv(&#39;data/dga_domains.txt&#39;, names=[&#39;raw_domain&#39;], header=None, encoding=&#39;utf-8&#39;)
+dga_dataframe.info()
+dga_dataframe.head()
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 2669 entries, 0 to 2668
+Data columns (total 1 columns):
+raw_domain    2669 non-null object
+dtypes: object(1)
+memory usage: 20.9+ KB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>raw_domain</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>04055051be412eea5a61b7da8438be3d.info</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1cb8a5f36f.info</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>30acd347397c34fc273e996b22951002.org</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>336c986a284e2b3bc0f69f949cb437cb.info</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>336c986a284e2b3bc0f69f949cb437cb.org</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">word_dataframe = pd.read_csv(&#39;data/words.txt&#39;, names=[&#39;word&#39;], header=None, dtype={&#39;word&#39;: np.str}, encoding=&#39;utf-8&#39;)
+word_dataframe.info()
+word_dataframe.head(10)
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 479623 entries, 0 to 479622
+Data columns (total 1 columns):
+word    479619 non-null object
+dtypes: object(1)
+memory usage: 3.7+ MB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>word</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1080</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10-point</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10th</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11-point</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>12-point</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>16-point</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>18-point</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1st</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>20-point</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>准备数据</p>
+
+<pre><code class="language-python">def domain_extract(uri):
+    ext = tldextract.extract(uri)
+    if (not ext.suffix):
+        return None
+    else:
+        return ext.domain
+    
+alexa_dataframe[&#39;domain&#39;] = [ domain_extract(uri) for uri in alexa_dataframe[&#39;uri&#39;]]
+del alexa_dataframe[&#39;rank&#39;]
+del alexa_dataframe[&#39;uri&#39;]
+alexa_dataframe = alexa_dataframe.dropna()
+alexa_dataframe = alexa_dataframe.drop_duplicates()
+alexa_dataframe.info()
+alexa_dataframe.head()
+</code></pre>
+
+<pre><code class="language-text">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+Int64Index: 91377 entries, 0 to 99999
+Data columns (total 1 columns):
+domain    91377 non-null object
+dtypes: object(1)
+memory usage: 1.4+ MB
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>facebook</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>google</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>youtube</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>yahoo</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>baidu</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">alexa_dataframe[&#39;class&#39;] = &#39;legit&#39;
+#对正常数据打标legit
+alexa_dataframe.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>facebook</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>google</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>youtube</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>yahoo</td>
+      <td>legit</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>baidu</td>
+      <td>legit</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python"># Shuffle the data (important for training/testing)
+alexa_dataframe = alexa_dataframe.reindex(np.random.permutation(alexa_dataframe.index))
+#打乱循序，重新索引
+#Randomly permute a sequence, or return a permuted range
+alexa_total = alexa_dataframe.shape[0]
+print(&#39;Total Alexa domains %d&#39; % alexa_total)
+</code></pre>
+
+<pre><code class="language-text">Total Alexa domains 91377
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe[&#39;domain&#39;] = dga_dataframe.applymap(lambda x: x.split(&#39;.&#39;)[0].strip().lower())
+#This method applies a function that accepts and returns a scalar to every element of a DataFrame.
+del dga_dataframe[&#39;raw_domain&#39;]
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe = dga_dataframe.dropna()
+dga_dataframe = dga_dataframe.drop_duplicates()
+dga_total = dga_dataframe.shape[0]
+print(&#39;Total DGA domains %d&#39; % dga_total)
+</code></pre>
+
+<pre><code class="language-text">Total DGA domains 2664
+</code></pre>
+
+<pre><code class="language-python">dga_dataframe[&#39;class&#39;] = &#39;dga&#39;
+dga_dataframe.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>04055051be412eea5a61b7da8438be3d</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1cb8a5f36f</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>30acd347397c34fc273e996b22951002</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>336c986a284e2b3bc0f69f949cb437cb</td>
+      <td>dga</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>40a43e61e56a5c218cf6c22aca27f7ee</td>
+      <td>dga</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">def entropy(s):
+    &#39;&#39;&#39;
+    熵计算
+    &#39;&#39;&#39;
+    p, lns = collections.Counter(s), float(len(s))
+    return -sum( count/lns * math.log(count/lns, 2) for count in p.values())
+</code></pre>
+
+<pre><code class="language-python">all_domains = pd.concat([alexa_dataframe, dga_dataframe], ignore_index=True)
+#将数据根据不同的轴作简单的融合
+#如果两个表的index都没有实际含义，使用ignore_index=True
+all_domains[&#39;length&#39;] = [len(x) for x in all_domains[&#39;domain&#39;]]
+all_domains = all_domains[all_domains[&#39;length&#39;] &gt; 6]
+#排除短domain的干扰
+all_domains[&#39;entropy&#39;] = [entropy(x) for x in all_domains[&#39;domain&#39;]]
+all_domains.head(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>facebook</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.750000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>youtube</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.521641</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>wikipedia</td>
+      <td>legit</td>
+      <td>9</td>
+      <td>2.641604</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>blogspot</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.750000</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>twitter</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.128085</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>linkedin</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.500000</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>wordpress</td>
+      <td>legit</td>
+      <td>9</td>
+      <td>2.725481</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>microsoft</td>
+      <td>legit</td>
+      <td>9</td>
+      <td>2.947703</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>xvideos</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.807355</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>googleusercontent</td>
+      <td>legit</td>
+      <td>17</td>
+      <td>3.175123</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>分析数据</p>
+
+<pre><code class="language-python">#箱线图
+all_domains.boxplot(&#39;length&#39;,&#39;class&#39;)
+pylab.ylabel(&#39;Domain Length&#39;)
+all_domains.boxplot(&#39;entropy&#39;,&#39;class&#39;)
+pylab.ylabel(&#39;Domain Entropy&#39;)
+</code></pre>
+
+<pre><code class="language-text">Text(0,0.5,&#39;Domain Entropy&#39;)
+</code></pre>
+
+<p><img src="media/15385813470879/output_13_1.png" alt="output_13_1"/></p>
+
+<p><img src="media/15385813470879/output_13_2.png" alt="output_13_2"/></p>
+
+<pre><code class="language-python">cond = all_domains[&#39;class&#39;] == &#39;dga&#39;
+dga = all_domains[cond]
+alexa = all_domains[~cond]
+plt.scatter(alexa[&#39;length&#39;], alexa[&#39;entropy&#39;], s=140, c=&#39;#aaaaff&#39;, label=&#39;Alexa&#39;, alpha=.2)
+plt.scatter(dga[&#39;length&#39;], dga[&#39;entropy&#39;], s=40, c=&#39;r&#39;, label=&#39;DGA&#39;, alpha=.3)
+plt.legend()
+#放置图例
+pylab.xlabel(&#39;Domain Length&#39;)
+pylab.ylabel(&#39;Domain Entropy&#39;)
+</code></pre>
+
+<pre><code class="language-text">Text(0,0.5,&#39;Domain Entropy&#39;)
+</code></pre>
+
+<p><img src="media/15385813470879/output_14_1.png" alt="output_14_1"/></p>
+
+<pre><code class="language-python">all_domains.tail(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>94031</th>
+      <td>xcfwwghb</td>
+      <td>dga</td>
+      <td>8</td>
+      <td>2.750000</td>
+    </tr>
+    <tr>
+      <th>94032</th>
+      <td>xcgqdfyrkgihlrmfmfib</td>
+      <td>dga</td>
+      <td>20</td>
+      <td>3.684184</td>
+    </tr>
+    <tr>
+      <th>94033</th>
+      <td>xclqwzcfcx</td>
+      <td>dga</td>
+      <td>10</td>
+      <td>2.646439</td>
+    </tr>
+    <tr>
+      <th>94034</th>
+      <td>xcpfxzuf</td>
+      <td>dga</td>
+      <td>8</td>
+      <td>2.500000</td>
+    </tr>
+    <tr>
+      <th>94035</th>
+      <td>xcvxhxze</td>
+      <td>dga</td>
+      <td>8</td>
+      <td>2.405639</td>
+    </tr>
+    <tr>
+      <th>94036</th>
+      <td>xdbrbsbm</td>
+      <td>dga</td>
+      <td>8</td>
+      <td>2.405639</td>
+    </tr>
+    <tr>
+      <th>94037</th>
+      <td>xdfjryydcfwvkvui</td>
+      <td>dga</td>
+      <td>16</td>
+      <td>3.500000</td>
+    </tr>
+    <tr>
+      <th>94038</th>
+      <td>xdjlvcgw</td>
+      <td>dga</td>
+      <td>8</td>
+      <td>3.000000</td>
+    </tr>
+    <tr>
+      <th>94039</th>
+      <td>xdrmjeu</td>
+      <td>dga</td>
+      <td>7</td>
+      <td>2.807355</td>
+    </tr>
+    <tr>
+      <th>94040</th>
+      <td>xflrjyyjswoatsoq</td>
+      <td>dga</td>
+      <td>16</td>
+      <td>3.500000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">legit = all_domains[(all_domains[&#39;class&#39;]==&#39;legit&#39;)]
+max_grams = np.maximum(legit[&#39;alexa_grams&#39;],legit[&#39;word_grams&#39;])
+ax = max_grams.hist(bins=80)
+ax.figure.suptitle(&#39;Histogram of the Max NGram Score for Domains&#39;)
+pylab.xlabel(&#39;Number of Domains&#39;)
+pylab.ylabel(&#39;Maximum NGram Score&#39;)
+</code></pre>
+
+<pre><code class="language-text">Text(0,0.5,&#39;Maximum NGram Score&#39;)
+</code></pre>
+
+<p><img src="media/15385813470879/output_16_1.png" alt="output_16_1"/></p>
+
+<pre><code class="language-python">word_dataframe = word_dataframe[word_dataframe[&#39;word&#39;].map(lambda x: str(x).isalpha())]
+word_dataframe = word_dataframe.applymap(lambda x: str(x).strip().lower())
+word_dataframe = word_dataframe.dropna()
+word_dataframe = word_dataframe.drop_duplicates()
+word_dataframe.head(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>word</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>37</th>
+      <td>a</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>aa</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>aaa</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>aaaa</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>aaaaaa</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>aaal</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>aaas</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>aaberg</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>aachen</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>aae</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">alexa_vc = sklearn.feature_extraction.text.CountVectorizer(analyzer=&#39;char&#39;, ngram_range=(3,5), min_df=1e-4, max_df=1.0)
+#词袋模型统计词频
+#ngram_range：词组切分的长度范围
+#如果一个词的频率小于min_df或者大于max_df，将不会被作为关键词
+counts_matrix = alexa_vc.fit_transform(alexa_dataframe[&#39;domain&#39;])
+#生成词频向量
+#fit_transform 计算各个词语出现的次数
+alexa_counts = np.log10(counts_matrix.sum(axis=0).getA1())
+#数据归一化
+print(alexa_counts[:10])
+ngrams_list = alexa_vc.get_feature_names()
+#从包含文本和图片的数据集中提取特征，转换成机器学习中可用的数值型特征
+print(ngrams_list[:10])
+
+_sorted_ngrams = sorted(zip(ngrams_list, alexa_counts), key=operator.itemgetter(1), reverse=True)
+#zip()将两个序列合并，返回zip对象，可强制转换为列表或字典
+# sorted()对序列进行排序，返回一个排序后的新列表，原数据不改变
+print(&#39;Alexa NGrams: %d&#39; % len(_sorted_ngrams))
+for ngram, count in _sorted_ngrams[:10]:
+    print(ngram, count)
+</code></pre>
+
+<pre><code class="language-text">[1.         1.         1.17609126 1.64345268 1.11394335 1.14612804
+ 1.         1.17609126 1.07918125 1.54406804]
+[&#39;-20&#39;, &#39;-a-&#39;, &#39;-ac&#39;, &#39;-ad&#39;, &#39;-ads&#39;, &#39;-af&#39;, &#39;-ag&#39;, &#39;-ai&#39;, &#39;-air&#39;, &#39;-al&#39;]
+Alexa NGrams: 23613
+ing 3.443888546777372
+lin 3.4271614029259654
+ine 3.399673721481038
+tor 3.26528962586083
+ter 3.2631624649622166
+ion 3.2467447097238415
+ent 3.228913405994688
+por 3.2013971243204513
+the 3.2005769267548483
+ree 3.16345955176999
+</code></pre>
+
+<pre><code class="language-python">#提取词的数值型特征
+dict_vc = sklearn.feature_extraction.text.CountVectorizer(analyzer=&#39;char&#39;, ngram_range=(3,5), min_df=1e-5, max_df=1.0)
+counts_matrix = dict_vc.fit_transform(word_dataframe[&#39;word&#39;])
+dict_counts = np.log10(counts_matrix.sum(axis=0).getA1())
+ngrams_list = dict_vc.get_feature_names()
+print(ngrams_list[:10])
+</code></pre>
+
+<pre><code class="language-text">[&#39;aaa&#39;, &#39;aab&#39;, &#39;aac&#39;, &#39;aad&#39;, &#39;aaf&#39;, &#39;aag&#39;, &#39;aah&#39;, &#39;aai&#39;, &#39;aak&#39;, &#39;aal&#39;]
+</code></pre>
+
+<pre><code class="language-python">_sorted_ngrams = sorted(zip(ngrams_list, dict_counts), key=operator.itemgetter(1), reverse=True)
+print(&#39;Word NGrams: %d&#39; % len(_sorted_ngrams))
+for ngram, count in _sorted_ngrams[:10]:
+    print(ngram, count)
+</code></pre>
+
+<pre><code class="language-text">Word NGrams: 123061
+ing 4.387300822448285
+ess 4.204879333760662
+ati 4.1933472563864616
+ion 4.165036479994566
+ter 4.162415036106447
+nes 4.112504458767161
+tio 4.076822423342773
+ate 4.0723602039634885
+ent 4.069631102620343
+tion 4.0496056125949735
+</code></pre>
+
+<pre><code class="language-python">def ngram_count(domain):
+    &#39;&#39;&#39;
+    domain中包含的ngrams数
+    &#39;&#39;&#39;
+    alexa_match = alexa_counts * alexa_vc.transform([domain]).T  
+    dict_match = dict_counts * dict_vc.transform([domain]).T
+    print(&#39;%s Alexa match:%d Dict match: %d&#39; % (domain, alexa_match, dict_match))
+</code></pre>
+
+<pre><code class="language-python">ngram_count(&#39;google&#39;)
+ngram_count(&#39;facebook&#39;)
+ngram_count(&#39;1cb8a5f36f&#39;)
+ngram_count(&#39;pterodactylfarts&#39;)
+</code></pre>
+
+<pre><code class="language-text">google Alexa match:17 Dict match: 14
+facebook Alexa match:31 Dict match: 27
+1cb8a5f36f Alexa match:0 Dict match: 0
+pterodactylfarts Alexa match:35 Dict match: 76
+</code></pre>
+
+<pre><code class="language-python">#Compute NGram matches for all the domains and add to our dataframe
+all_domains[&#39;alexa_grams&#39;]= alexa_counts * alexa_vc.transform(all_domains[&#39;domain&#39;]).T
+all_domains[&#39;word_grams&#39;]= dict_counts * dict_vc.transform(all_domains[&#39;domain&#39;]).T
+all_domains.head(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+      <th>alexa_grams</th>
+      <th>word_grams</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>facebook</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.750000</td>
+      <td>31.302278</td>
+      <td>27.872426</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>youtube</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.521641</td>
+      <td>25.855170</td>
+      <td>18.287142</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>wikipedia</td>
+      <td>legit</td>
+      <td>9</td>
+      <td>2.641604</td>
+      <td>24.571024</td>
+      <td>29.175635</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>blogspot</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.750000</td>
+      <td>24.435141</td>
+      <td>19.274501</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>twitter</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.128085</td>
+      <td>23.244500</td>
+      <td>31.130820</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>linkedin</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.500000</td>
+      <td>24.774916</td>
+      <td>32.904408</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>wordpress</td>
+      <td>legit</td>
+      <td>9</td>
+      <td>2.725481</td>
+      <td>38.369509</td>
+      <td>33.806635</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>microsoft</td>
+      <td>legit</td>
+      <td>9</td>
+      <td>2.947703</td>
+      <td>32.133033</td>
+      <td>39.530125</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>xvideos</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.807355</td>
+      <td>28.906360</td>
+      <td>18.846834</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>googleusercontent</td>
+      <td>legit</td>
+      <td>17</td>
+      <td>3.175123</td>
+      <td>67.315750</td>
+      <td>86.104683</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">#Use the vectorized operations of the dataframe to investigate differences
+all_domains[&#39;diff&#39;] = all_domains[&#39;alexa_grams&#39;] - all_domains[&#39;word_grams&#39;]
+all_domains.sort_values([&#39;diff&#39;], ascending=True).head(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+      <th>alexa_grams</th>
+      <th>word_grams</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>79366</th>
+      <td>bipolardisorderdepressionanxiety</td>
+      <td>legit</td>
+      <td>32</td>
+      <td>3.616729</td>
+      <td>117.312465</td>
+      <td>190.833856</td>
+      <td>-73.521391</td>
+    </tr>
+    <tr>
+      <th>72512</th>
+      <td>channel4embarrassingillnesses</td>
+      <td>legit</td>
+      <td>29</td>
+      <td>3.440070</td>
+      <td>95.786979</td>
+      <td>169.119440</td>
+      <td>-73.332460</td>
+    </tr>
+    <tr>
+      <th>10961</th>
+      <td>stirringtroubleinternationally</td>
+      <td>legit</td>
+      <td>30</td>
+      <td>3.481728</td>
+      <td>134.049367</td>
+      <td>207.204729</td>
+      <td>-73.155362</td>
+    </tr>
+    <tr>
+      <th>85031</th>
+      <td>americansforresponsiblesolutions</td>
+      <td>legit</td>
+      <td>32</td>
+      <td>3.667838</td>
+      <td>148.143049</td>
+      <td>218.363956</td>
+      <td>-70.220908</td>
+    </tr>
+    <tr>
+      <th>20459</th>
+      <td>pragmatismopolitico</td>
+      <td>legit</td>
+      <td>19</td>
+      <td>3.326360</td>
+      <td>61.244630</td>
+      <td>121.536223</td>
+      <td>-60.291593</td>
+    </tr>
+    <tr>
+      <th>13702</th>
+      <td>egaliteetreconciliation</td>
+      <td>legit</td>
+      <td>23</td>
+      <td>3.186393</td>
+      <td>91.938518</td>
+      <td>152.125325</td>
+      <td>-60.186808</td>
+    </tr>
+    <tr>
+      <th>4706</th>
+      <td>interoperabilitybridges</td>
+      <td>legit</td>
+      <td>23</td>
+      <td>3.588354</td>
+      <td>95.037285</td>
+      <td>153.626312</td>
+      <td>-58.589028</td>
+    </tr>
+    <tr>
+      <th>85161</th>
+      <td>foreclosurephilippines</td>
+      <td>legit</td>
+      <td>22</td>
+      <td>3.447402</td>
+      <td>74.506548</td>
+      <td>132.514638</td>
+      <td>-58.008090</td>
+    </tr>
+    <tr>
+      <th>45636</th>
+      <td>annamalicesissyselfhypnosis</td>
+      <td>legit</td>
+      <td>27</td>
+      <td>3.429908</td>
+      <td>68.680068</td>
+      <td>126.667692</td>
+      <td>-57.987623</td>
+    </tr>
+    <tr>
+      <th>70351</th>
+      <td>corazonindomablecapitulos</td>
+      <td>legit</td>
+      <td>25</td>
+      <td>3.813661</td>
+      <td>75.535473</td>
+      <td>133.160690</td>
+      <td>-57.625217</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">all_domains.sort_values([&#39;diff&#39;], ascending=False).head(10)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+      <th>alexa_grams</th>
+      <th>word_grams</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>54228</th>
+      <td>gay-sex-pics-porn-pictures-gay-sex-porn-gay-se...</td>
+      <td>legit</td>
+      <td>56</td>
+      <td>3.661056</td>
+      <td>159.642301</td>
+      <td>85.124184</td>
+      <td>74.518116</td>
+    </tr>
+    <tr>
+      <th>85091</th>
+      <td>article-directory-free-submission-free-content</td>
+      <td>legit</td>
+      <td>46</td>
+      <td>3.786816</td>
+      <td>235.233896</td>
+      <td>188.230453</td>
+      <td>47.003443</td>
+    </tr>
+    <tr>
+      <th>16893</th>
+      <td>stream-free-movies-online</td>
+      <td>legit</td>
+      <td>25</td>
+      <td>3.509275</td>
+      <td>120.250616</td>
+      <td>74.496915</td>
+      <td>45.753701</td>
+    </tr>
+    <tr>
+      <th>63380</th>
+      <td>watch-free-movie-online</td>
+      <td>legit</td>
+      <td>23</td>
+      <td>3.708132</td>
+      <td>103.029245</td>
+      <td>58.943451</td>
+      <td>44.085794</td>
+    </tr>
+    <tr>
+      <th>44253</th>
+      <td>best-online-shopping-site</td>
+      <td>legit</td>
+      <td>25</td>
+      <td>3.452879</td>
+      <td>123.377240</td>
+      <td>79.596640</td>
+      <td>43.780601</td>
+    </tr>
+    <tr>
+      <th>22524</th>
+      <td>social-bookmarking-sites-list</td>
+      <td>legit</td>
+      <td>29</td>
+      <td>3.702472</td>
+      <td>145.755266</td>
+      <td>102.261826</td>
+      <td>43.493440</td>
+    </tr>
+    <tr>
+      <th>66335</th>
+      <td>free-online-directory</td>
+      <td>legit</td>
+      <td>21</td>
+      <td>3.403989</td>
+      <td>123.379738</td>
+      <td>80.735030</td>
+      <td>42.644708</td>
+    </tr>
+    <tr>
+      <th>46553</th>
+      <td>free-links-articles-directory</td>
+      <td>legit</td>
+      <td>29</td>
+      <td>3.702472</td>
+      <td>153.239055</td>
+      <td>110.955361</td>
+      <td>42.283694</td>
+    </tr>
+    <tr>
+      <th>59873</th>
+      <td>online-web-directory</td>
+      <td>legit</td>
+      <td>20</td>
+      <td>3.584184</td>
+      <td>116.310717</td>
+      <td>74.082948</td>
+      <td>42.227769</td>
+    </tr>
+    <tr>
+      <th>58016</th>
+      <td>web-directory-online</td>
+      <td>legit</td>
+      <td>20</td>
+      <td>3.584184</td>
+      <td>114.402671</td>
+      <td>74.082948</td>
+      <td>40.319723</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">#gram count低的词
+weird_cond = (all_domains[&#39;class&#39;]==&#39;legit&#39;) &amp; (all_domains[&#39;word_grams&#39;]&lt;3) &amp; (all_domains[&#39;alexa_grams&#39;]&lt;2)
+weird = all_domains[weird_cond]
+print(weird.shape[0])
+weird.head(10)
+</code></pre>
+
+<pre><code class="language-text">91
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+      <th>alexa_grams</th>
+      <th>word_grams</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1246</th>
+      <td>twcczhu</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.521641</td>
+      <td>1.748188</td>
+      <td>0.0</td>
+      <td>1.748188</td>
+    </tr>
+    <tr>
+      <th>2009</th>
+      <td>ggmm777</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>1.556657</td>
+      <td>1.518514</td>
+      <td>0.0</td>
+      <td>1.518514</td>
+    </tr>
+    <tr>
+      <th>2760</th>
+      <td>qq66699</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>1.556657</td>
+      <td>1.342423</td>
+      <td>0.0</td>
+      <td>1.342423</td>
+    </tr>
+    <tr>
+      <th>17347</th>
+      <td>crx7601</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.807355</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>18682</th>
+      <td>hzsxzhyy</td>
+      <td>legit</td>
+      <td>8</td>
+      <td>2.250000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>19418</th>
+      <td>02022222222</td>
+      <td>legit</td>
+      <td>11</td>
+      <td>0.684038</td>
+      <td>1.041393</td>
+      <td>0.0</td>
+      <td>1.041393</td>
+    </tr>
+    <tr>
+      <th>19887</th>
+      <td>3181302</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.235926</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>21172</th>
+      <td>hljdns4</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.807355</td>
+      <td>1.755875</td>
+      <td>0.0</td>
+      <td>1.755875</td>
+    </tr>
+    <tr>
+      <th>26441</th>
+      <td>05tz2e9</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.807355</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>26557</th>
+      <td>fzysqmy</td>
+      <td>legit</td>
+      <td>7</td>
+      <td>2.521641</td>
+      <td>1.176091</td>
+      <td>0.0</td>
+      <td>1.176091</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">#对于这些正常但是gram count低的domain标记为weird
+all_domains.loc[weird_cond, &#39;class&#39;] = &#39;weird&#39;
+all_domains[&#39;class&#39;].value_counts()
+</code></pre>
+
+<pre><code class="language-text">legit    67221
+dga       2664
+weird       91
+Name: class, dtype: int64
+</code></pre>
+
+<pre><code class="language-python">all_domains[all_domains[&#39;class&#39;] == &#39;weird&#39;].head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code class="language-text">.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>domain</th>
+      <th>class</th>
+      <th>length</th>
+      <th>entropy</th>
+      <th>alexa_grams</th>
+      <th>word_grams</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1246</th>
+      <td>twcczhu</td>
+      <td>weird</td>
+      <td>7</td>
+      <td>2.521641</td>
+      <td>1.748188</td>
+      <td>0.0</td>
+      <td>1.748188</td>
+    </tr>
+    <tr>
+      <th>2009</th>
+      <td>ggmm777</td>
+      <td>weird</td>
+      <td>7</td>
+      <td>1.556657</td>
+      <td>1.518514</td>
+      <td>0.0</td>
+      <td>1.518514</td>
+    </tr>
+    <tr>
+      <th>2760</th>
+      <td>qq66699</td>
+      <td>weird</td>
+      <td>7</td>
+      <td>1.556657</td>
+      <td>1.342423</td>
+      <td>0.0</td>
+      <td>1.342423</td>
+    </tr>
+    <tr>
+      <th>17347</th>
+      <td>crx7601</td>
+      <td>weird</td>
+      <td>7</td>
+      <td>2.807355</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>18682</th>
+      <td>hzsxzhyy</td>
+      <td>weird</td>
+      <td>8</td>
+      <td>2.250000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code class="language-python">cond = all_domains[&#39;class&#39;] == &#39;dga&#39;
+dga = all_domains[cond]
+alexa = all_domains[~cond]
+plt.scatter(alexa[&#39;word_grams&#39;], alexa[&#39;entropy&#39;], s=140, c=&#39;#aaaaff&#39;, label=&#39;Alexa&#39;, alpha=.2)
+plt.scatter(dga[&#39;word_grams&#39;], dga[&#39;entropy&#39;], s=40, c=&#39;r&#39;, label=&#39;DGA&#39;, alpha=.3)
+plt.legend()
+#放置图例
+pylab.xlabel(&#39;Domain word_grams&#39;)
+pylab.ylabel(&#39;Domain Entropy&#39;)
+</code></pre>
+
+<pre><code class="language-text">Text(0,0.5,&#39;Domain Entropy&#39;)
+</code></pre>
+
+<p><img src="media/15385813470879/output_29_1.png" alt="output_29_1"/></p>
+
+<p>训练算法</p>
+
+<pre><code class="language-python">not_weird = all_domains[all_domains[&#39;class&#39;] != &#39;weird&#39;]
+X = not_weird.as_matrix([&#39;length&#39;, &#39;entropy&#39;, &#39;alexa_grams&#39;, &#39;word_grams&#39;])
+#将frame转换为Numpy-array表示
+y = np.array(not_weird[&#39;class&#39;].tolist())
+#将array转换为list
+clf = sklearn.ensemble.RandomForestClassifier(n_estimators=20)
+#A random forest classifier
+#The number of trees in the forest
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+#随机划分训练集和测试集
+#样本占比0.2
+clf.fit(X_train, y_train)
+#用训练数据拟合分类器模型
+y_pred = clf.predict(X_test)
+#用训练好的分类器去预测测试数据
+</code></pre>
+
+<pre><code class="language-text">/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/ipykernel_launcher.py:2: FutureWarning: Method .as_matrix will be removed in a future version. Use .values instead.
+</code></pre>
+
+<pre><code class="language-python">def show_cm(cm, labels):
+    #计算百分比
+    percent = (cm*100.0)/np.array(np.matrix(cm.sum(axis=1)).T)  
+    print(&#39;Confusion Matrix Stats&#39;)
+    for i, label_i in enumerate(labels):
+        for j, label_j in enumerate(labels):
+            print(&quot;%s/%s: %.2f%% (%d/%d)&quot; % (label_i, label_j, (percent[i][j]), cm[i][j], cm[i].sum()))
+</code></pre>
+
+<pre><code class="language-python">labels = [&#39;legit&#39;, &#39;dga&#39;]
+cm = sklearn.metrics.confusion_matrix(y_test, y_pred, labels)
+#混淆矩阵被用于在分类问题上对准确率的一种评估形式
+show_cm(cm, labels)
+</code></pre>
+
+<pre><code class="language-text">Confusion Matrix Stats
+legit/legit: 99.57% (13369/13427)
+legit/dga: 0.43% (58/13427)
+dga/legit: 15.45% (85/550)
+dga/dga: 84.55% (465/550)
+</code></pre>
+
+<pre><code class="language-python">importances = zip([&#39;length&#39;, &#39;entropy&#39;, &#39;alexa_grams&#39;, &#39;word_grams&#39;], clf.feature_importances_)
+#了解每个特征的重要性
+list(importances)
+</code></pre>
+
+<pre><code class="language-text">[(&#39;length&#39;, 0.16033779891739047),
+ (&#39;entropy&#39;, 0.12175502861193326),
+ (&#39;alexa_grams&#39;, 0.5087685303664589),
+ (&#39;word_grams&#39;, 0.20913864210421748)]
+</code></pre>
+
+<pre><code class="language-python">clf.fit(X, y)
+</code></pre>
+
+<pre><code class="language-text">RandomForestClassifier(bootstrap=True, class_weight=None, criterion=&#39;gini&#39;,
+            max_depth=None, max_features=&#39;auto&#39;, max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=1, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=20, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+</code></pre>
+
+<p>测试算法</p>
+
+<pre><code class="language-python">def test_it(domain):
+    _alexa_match = alexa_counts * alexa_vc.transform([domain]).T  
+    _dict_match = dict_counts * dict_vc.transform([domain]).T
+    _X = [[len(domain), entropy(domain), _alexa_match, _dict_match]]
+    print(&#39;%s : %s&#39; % (domain, clf.predict(_X)[0]))
+</code></pre>
+
+<pre><code class="language-python">test_it(&#39;google&#39;)
+test_it(&#39;google8sdflkajssjgjksdh&#39;)
+test_it(&#39;faceboosadfadfafdk&#39;)
+test_it(&#39;1cb8a5f36f&#39;)
+test_it(&#39;pterodactyladfasdfasdffarts&#39;)
+test_it(&#39;ptes9dro-dwacty2lfa5rrts&#39;)
+test_it(&#39;beyonce&#39;)
+test_it(&#39;bey666on4ce&#39;)
+test_it(&#39;supersexy&#39;)
+test_it(&#39;yourmomissohotinthesummertime&#39;)
+</code></pre>
+
+<pre><code class="language-text">google : legit
+google8sdflkajssjgjksdh : dga
+faceboosadfadfafdk : legit
+1cb8a5f36f : dga
+pterodactyladfasdfasdffarts : legit
+ptes9dro-dwacty2lfa5rrts : dga
+beyonce : legit
+bey666on4ce : dga
+supersexy : legit
+yourmomissohotinthesummertime : legit
+</code></pre>
+
+<p>使用算法</p>
+
+<pre><code class="language-python">def save_model_to_disk(name, model, model_dir=&#39;models&#39;):
+    serialized_model = pickle.dumps(model, protocol=pickle.HIGHEST_PROTOCOL)
+    model_path = os.path.join(model_dir, name+&#39;.model&#39;)
+    print(&#39;Storing Serialized Model to Disk (%s:%.2fMeg)&#39; % (name, len(serialized_model)/1024.0/1024.0))
+    open(model_path,&#39;wb&#39;).write(serialized_model)
+</code></pre>
+
+<pre><code class="language-python">save_model_to_disk(&#39;dga_model_random_forest&#39;, clf)
+save_model_to_disk(&#39;dga_model_alexa_vectorizor&#39;, alexa_vc)
+save_model_to_disk(&#39;dga_model_alexa_counts&#39;, alexa_counts)
+save_model_to_disk(&#39;dga_model_dict_vectorizor&#39;, dict_vc)
+save_model_to_disk(&#39;dga_model_dict_counts&#39;, dict_counts)
+</code></pre>
+
+<pre><code class="language-text">Storing Serialized Model to Disk (dga_model_random_forest:1.80Meg)
+Storing Serialized Model to Disk (dga_model_alexa_vectorizor:2.93Meg)
+Storing Serialized Model to Disk (dga_model_alexa_counts:0.18Meg)
+Storing Serialized Model to Disk (dga_model_dict_vectorizor:5.39Meg)
+Storing Serialized Model to Disk (dga_model_dict_counts:0.94Meg)
+</code></pre>
+
+<pre><code class="language-python">def load_model_from_disk(name, model_dir=&#39;models&#39;):
+    model_path = os.path.join(model_dir, name+&#39;.model&#39;)
+    try:
+        model = pickle.loads(open(model_path,&#39;rb&#39;).read())
+        print(&#39;success&#39;)
+    except:
+        print(&#39;Could not load model: %s from directory %s!&#39; % (name, model_path))
+        return None
+    return model
+</code></pre>
+
+<pre><code class="language-python">clf = load_model_from_disk(&#39;dga_model_random_forest&#39;)
+alexa_vc = load_model_from_disk(&#39;dga_model_alexa_vectorizor&#39;)
+alexa_counts = load_model_from_disk(&#39;dga_model_alexa_counts&#39;)
+dict_vc = load_model_from_disk(&#39;dga_model_dict_vectorizor&#39;)
+dict_counts = load_model_from_disk(&#39;dga_model_dict_counts&#39;)
+model = {&#39;clf&#39;:clf, &#39;alexa_vc&#39;:alexa_vc, &#39;alexa_counts&#39;:alexa_counts,
+                 &#39;dict_vc&#39;:dict_vc, &#39;dict_counts&#39;:dict_counts}
+</code></pre>
+
+<pre><code class="language-text">success
+success
+success
+success
+success
+</code></pre>
+
+<pre><code class="language-python">def evaluate_url(model, url):
+    domain = domain_extract(url)
+    alexa_match = model[&#39;alexa_counts&#39;] * model[&#39;alexa_vc&#39;].transform([url]).T
+    dict_match = model[&#39;dict_counts&#39;] * model[&#39;dict_vc&#39;].transform([url]).T
+    
+    X = [[len(domain), entropy(domain), alexa_match, dict_match]]
+    y_pred = model[&#39;clf&#39;].predict(X)[0]
+    
+    print(&#39;%s : %s&#39; % (domain, y_pred))
+</code></pre>
+
+<pre><code class="language-python">evaluate_url(model, &#39;adfhalksfhjashfk.com&#39;)
+</code></pre>
+
+<pre><code class="language-text">adfhalksfhjashfk : dga
+</code></pre>
+
+<hr/>
+
+<pre><code class="language-python">mtnb = MultinomialNB()
+mtnb.fit(X_train,y_train)
+</code></pre>
+
+<pre><code class="language-text">MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
+</code></pre>
+
+<pre><code class="language-python">nb_y_pred=mtnb.predict(X_test)
+print(classification_report(y_test, nb_y_pred))
+cm = sklearn.metrics.confusion_matrix(y_test, nb_y_pred)
+show_cm(cm, labels)
+</code></pre>
+
+<pre><code class="language-text">             precision    recall  f1-score   support
+
+        dga       0.71      0.87      0.78       550
+      legit       0.99      0.99      0.99     13427
+
+avg / total       0.98      0.98      0.98     13977
+
+Confusion Matrix Stats
+legit/legit: 86.73% (477/550)
+legit/dga: 13.27% (73/550)
+dga/legit: 1.44% (194/13427)
+dga/dga: 98.56% (13233/13427)
+</code></pre>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-10-03T23:42:27+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15387556906580.html" 
+					        title="Previous Post: [机器学习笔记]DGA Domain Detection 2">&laquo; [机器学习笔记]DGA Domain Detection 2</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15384736992481.html" 
+					        title="Next Post: [机器学习笔记]K-Means">[机器学习笔记]K-Means &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

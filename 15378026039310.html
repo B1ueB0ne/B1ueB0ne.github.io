@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [机器学习笔记]Support Vector Machines（SVM） - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[机器学习笔记]Support Vector Machines（SVM）</h1>	
+				<div class="post-data">
+					<time datetime="2018-09-26T23:23:23+08:00" pubdate data-updated="true">2018/09/26</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0.html'>机器学习</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>将大优化问题分解为多个小优化问题来求解</p>
+
+<span id="more"></span><!-- more -->
+
+<h4 id="toc_0">0x01 SVM</h4>
+
+<p>实现算法：序列最小优化（SMO）</p>
+
+<p>支持向量：离分割超平面最近的那些点</p>
+
+<p>优点：</p>
+
+<ul>
+<li>范化错误率低</li>
+<li>计算开销不大</li>
+<li>结果易解释</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+<li>对参数调节和核函数的选择敏感</li>
+<li>原始分类器需要修改才能处理多分类问题</li>
+</ul>
+
+<p>适用数据类型：</p>
+
+<ul>
+<li>数值型</li>
+<li>标称型</li>
+</ul>
+
+<h4 id="toc_1">0x02 SMO</h4>
+
+<p>将大优化问题分解为多个小优化问题来求解</p>
+
+<p>目标是求出一系列alpha和b，一旦求出了这些alpha，就很容易计算出权重向量w并得到分隔超平面</p>
+
+<p>工作原理是:每次循环中选择两个alpha进行优化处理。一旦找到一对合适的alpha，那么就增大其中一个同时减小另一个</p>
+
+<ul>
+<li>简化版实现</li>
+</ul>
+
+<pre><code class="language-text">def selectJrand(i, m):
+    &#39;&#39;&#39;
+    在某个区间范围内随机选择一个整数
+    :param i: 第i个alpha的下标
+    :param m: 所有alpha的数目
+    :return:
+    &#39;&#39;&#39;
+    j=i
+    while (j==i):
+        j = int(random.uniform(0, m))
+    return j
+
+def clipAlpha(aj, H, L):
+    &#39;&#39;&#39;
+    用于调整大于H或小于L的alpha值
+    :param aj:
+    :param H:
+    :param L:
+    :return:
+    &#39;&#39;&#39;
+    if aj &gt; H: 
+        aj = H
+    if L &gt; aj:
+        aj = L
+    return aj
+
+def smoSimple(dataMatIn, classLabels, C, toler, maxIter):
+    &#39;&#39;&#39;
+
+    :param dataMatIn:数据集
+    :param classLabels:类别标签
+    :param C:常数C
+    :param toler:容错率
+    :param maxIter:退出前的最大循环次数
+    :return:
+    &#39;&#39;&#39;
+    dataMatrix = mat(dataMatIn)
+    labelMat = mat(classLabels).transpose()
+    b = 0
+    m, n = shape(dataMatrix)
+    alphas = mat(zeros((m, 1)))
+    iter = 0 #记录循环次数
+    while (iter &lt; maxIter):
+        alphaPairsChanged = 0 #用于记录alpha是否优化
+        for i in range(m):
+            fXi = float(multiply(alphas, labelMat).T*(dataMatrix*dataMatrix[i, :].T)) + b #预测的类别
+            Ei = fXi - float(labelMat[i])#预测和实际的误差
+            #如果误差过大，则进行优化
+            if ((labelMat[i]*Ei &lt; -toler) and (alphas[i] &lt; C)) or ((labelMat[i]*Ei &gt; toler) and (alphas[i] &gt; 0)):
+                j = selectJrand(i, m) #随机选择第二个alpha值
+                fXj = float(multiply(alphas, labelMat).T*(dataMatrix*dataMatrix[j, :].T)) + b #预测类别
+                Ej = fXj - float(labelMat[j]) #误差
+                alphaIold = alphas[i].copy()
+                alphaJold = alphas[j].copy()
+                #计算L和H
+                if (labelMat[i] != labelMat[j]):
+                    L = max(0, alphas[j] - alphas[i])
+                    H = min(C, C + alphas[j] - alphas[i])
+                else:
+                    L = max(0, alphas[j] + alphas[i] - C)
+                    H = min(C, alphas[j] + alphas[i])
+                if L==H:
+                    print(&quot;L==H&quot;)
+                    continue
+                eta = 2.0 * dataMatrix[i, :]*dataMatrix[j, :].T - dataMatrix[i, :]*dataMatrix[i, :].T - dataMatrix[j, :]*dataMatrix[j, :].T #最优修改量
+                if eta &gt;= 0:
+                    print(&quot;eta&gt;=0&quot;)
+                    continue
+                alphas[j] -= labelMat[j]*(Ei - Ej)/eta
+                alphas[j] = clipAlpha(alphas[j], H, L)
+                if (abs(alphas[j] - alphaJold) &lt; 0.00001):
+                    print(&quot;j not moving enough&quot;)
+                    continue
+                alphas[i] += labelMat[j]*labelMat[i]*(alphaJold - alphas[j])#修改i，修改量和j相同，方向相反
+                #设置常数项
+                b1 = b - Ei - labelMat[i]*(alphas[i]-alphaIold)*dataMatrix[i, :]*dataMatrix[i, :].T - labelMat[j]*(alphas[j]-alphaJold)*dataMatrix[i, :]*dataMatrix[j, :].T
+                b2 = b - Ej - labelMat[i]*(alphas[i]-alphaIold)*dataMatrix[i, :]*dataMatrix[j, :].T - labelMat[j]*(alphas[j]-alphaJold)*dataMatrix[j, :]*dataMatrix[j, :].T
+                if (0 &lt; alphas[i]) and (C &gt; alphas[i]):
+                    b = b1
+                elif (0 &lt; alphas[j]) and (C &gt; alphas[j]):
+                    b = b2
+                else:
+                    b = (b1 + b2)/2.0
+                alphaPairsChanged += 1
+                print(&quot;iter: %d i:%d, pairs changed %d&quot; % (iter, i, alphaPairsChanged))
+        if (alphaPairsChanged == 0):
+            iter += 1
+        else:
+            iter = 0
+        print(&quot;iteration number: %d&quot; % iter)
+    return b, alphas
+</code></pre>
+
+<p><img src="media/15378026039310/15384703252463.jpg" alt=""/></p>
+
+<p>找出哪些点是支持向量</p>
+
+<pre><code class="language-text">    for i in range(100):
+        if alphas[i] &gt; 0.0:
+            print(dateArr[i], labelArr[i])
+</code></pre>
+
+<p><img src="media/15378026039310/15384704640833.jpg" alt=""/></p>
+
+<ul>
+<li>完整版实现</li>
+</ul>
+
+<p><img src="media/15378026039310/15384717843165.jpg" alt=""/></p>
+
+<pre><code class="language-text">class optStruct:
+    def __init__(self, dataMatIn, classLabels, C, toler, kTup):  # Initialize the structure with the parameters
+        self.X = dataMatIn
+        self.labelMat = classLabels
+        self.C = C
+        self.tol = toler
+        self.m = shape(dataMatIn)[0]
+        self.alphas = mat(zeros((self.m, 1)))
+        self.b = 0
+        self.eCache = mat(zeros((self.m, 2))) #first column is valid flag
+        self.K = mat(zeros((self.m, self.m)))
+        for i in range(self.m):
+            self.K[:, i] = kernelTrans(self.X, self.X[i, :], kTup)
+        
+def calcEk(oS, k):
+    &#39;&#39;&#39;
+    计算E值并返回
+    :param oS:
+    :param k:
+    :return:
+    &#39;&#39;&#39;
+    fXk = float(multiply(oS.alphas, oS.labelMat).T*oS.K[:, k] + oS.b)
+    Ek = fXk - float(oS.labelMat[k])
+    return Ek
+        
+def selectJ(i, oS, Ei):
+    &#39;&#39;&#39;
+    选择第二个alpha
+    :param i:
+    :param oS:
+    :param Ei:
+    :return:
+    &#39;&#39;&#39;
+    maxK = -1
+    maxDeltaE = 0
+    Ej = 0
+    oS.eCache[i] = [1, Ei]
+    validEcacheList = nonzero(oS.eCache[:, 0].A)[0]
+    if (len(validEcacheList)) &gt; 1:
+        for k in validEcacheList:
+            if k == i:
+                continue
+            Ek = calcEk(oS, k)
+            deltaE = abs(Ei - Ek)
+            if (deltaE &gt; maxDeltaE):
+                maxK = k
+                maxDeltaE = deltaE
+                Ej = Ek
+        return maxK, Ej
+    else:
+        j = selectJrand(i, oS.m)
+        Ej = calcEk(oS, j)
+    return j, Ej
+
+def updateEk(oS, k):
+    &#39;&#39;&#39;
+    计算误差值并存入缓存
+    :param oS:
+    :param k:
+    :return:
+    &#39;&#39;&#39;
+    Ek = calcEk(oS, k)
+    oS.eCache[k] = [1, Ek]
+        
+def innerL(i, oS):
+    &#39;&#39;&#39;
+    优化过程
+    :param i:
+    :param oS:
+    :return:
+    &#39;&#39;&#39;
+    Ei = calcEk(oS, i)
+    if ((oS.labelMat[i]*Ei &lt; -oS.tol) and (oS.alphas[i] &lt; oS.C)) or ((oS.labelMat[i]*Ei &gt; oS.tol) and (oS.alphas[i] &gt; 0)):
+        j, Ej = selectJ(i, oS, Ei)
+        alphaIold = oS.alphas[i].copy(); alphaJold = oS.alphas[j].copy()
+        if (oS.labelMat[i] != oS.labelMat[j]):
+            L = max(0, oS.alphas[j] - oS.alphas[i])
+            H = min(oS.C, oS.C + oS.alphas[j] - oS.alphas[i])
+        else:
+            L = max(0, oS.alphas[j] + oS.alphas[i] - oS.C)
+            H = min(oS.C, oS.alphas[j] + oS.alphas[i])
+        if L==H:
+            print(&quot;L==H&quot;)
+            return 0
+        eta = 2.0 * oS.K[i, j] - oS.K[i, i] - oS.K[j, j]
+        if eta &gt;= 0:
+            print(&quot;eta&gt;=0&quot;)
+            return 0
+        oS.alphas[j] -= oS.labelMat[j]*(Ei - Ej)/eta
+        oS.alphas[j] = clipAlpha(oS.alphas[j], H, L)
+        updateEk(oS, j)
+        if (abs(oS.alphas[j] - alphaJold) &lt; 0.00001):
+            print(&quot;j not moving enough&quot;)
+            return 0
+        oS.alphas[i] += oS.labelMat[j]*oS.labelMat[i]*(alphaJold - oS.alphas[j])
+        updateEk(oS, i)
+        b1 = oS.b - Ei - oS.labelMat[i]*(oS.alphas[i]-alphaIold)*oS.K[i, i] - oS.labelMat[j]*(oS.alphas[j]-alphaJold)*oS.K[i, j]
+        b2 = oS.b - Ej - oS.labelMat[i]*(oS.alphas[i]-alphaIold)*oS.K[i, j] - oS.labelMat[j]*(oS.alphas[j]-alphaJold)*oS.K[j, j]
+        if (0 &lt; oS.alphas[i]) and (oS.C &gt; oS.alphas[i]):
+            oS.b = b1
+        elif (0 &lt; oS.alphas[j]) and (oS.C &gt; oS.alphas[j]):
+            oS.b = b2
+        else:
+            oS.b = (b1 + b2)/2.0
+        return 1
+    else:
+        return 0
+
+def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=(&#39;lin&#39;, 0)):
+    &#39;&#39;&#39;
+    完整的SMO外循环
+    :param dataMatIn:
+    :param classLabels:
+    :param C:
+    :param toler:
+    :param maxIter:
+    :param kTup:
+    :return:
+    &#39;&#39;&#39;
+    oS = optStruct(mat(dataMatIn), mat(classLabels).transpose(), C, toler, kTup)
+    iter = 0
+    entireSet = True
+    alphaPairsChanged = 0
+    while (iter &lt; maxIter) and ((alphaPairsChanged &gt; 0) or (entireSet)):
+        alphaPairsChanged = 0
+        if entireSet:
+            for i in range(oS.m):        
+                alphaPairsChanged += innerL(i,oS)
+                print(&quot;fullSet, iter: %d i:%d, pairs changed %d&quot; % (iter, i, alphaPairsChanged))
+            iter += 1
+        else:
+            nonBoundIs = nonzero((oS.alphas.A &gt; 0) * (oS.alphas.A &lt; C))[0]
+            for i in nonBoundIs:
+                alphaPairsChanged += innerL(i, oS)
+                print(&quot;non-bound, iter: %d i:%d, pairs changed %d&quot; % (iter, i, alphaPairsChanged))
+            iter += 1
+        if entireSet:
+            entireSet = False
+        elif (alphaPairsChanged == 0):
+            entireSet = True
+        print(&quot;iteration number: %d&quot; % iter)
+    return oS.b, oS.alphas
+
+def calcWs(alphas, dataArr, classLabels):
+    &#39;&#39;&#39;
+    利用计算出的alpha进行分类
+    :param alphas:
+    :param dataArr:
+    :param classLabels:
+    :return:
+    &#39;&#39;&#39;
+    X = mat(dataArr)
+    labelMat = mat(classLabels).transpose()
+    m, n = shape(X)
+    w = zeros((n, 1))
+    for i in range(m):
+        w += multiply(alphas[i]*labelMat[i], X[i, :].T)
+    return w
+</code></pre>
+
+<pre><code class="language-text">for i in range(100):
+        if alphas[i] &gt; 0.0:
+            print(dateArr[i], labelArr[i])
+    ws = calcWs(alphas, dateArr, labelArr)
+    print(ws)
+    datmat = mat(dateArr)
+    print(datmat[0]*mat(ws) + b)
+</code></pre>
+
+<p><img src="media/15378026039310/15384718527848.jpg" alt=""/></p>
+
+<p>最后一行为测试结果，小于0属于-1类，大于0属于1类，等于0属于-1类</p>
+
+<h4 id="toc_2">0x03 kernel</h4>
+
+<p><img src="media/15378026039310/15384719736061.jpg" alt=""/></p>
+
+<ul>
+<li>将数据映射到高维空间</li>
+</ul>
+
+<p>将数据从一个特征空间转换到另一个特征空间<br/>
+映射会将低维特征空间映射到高维空间</p>
+
+<ul>
+<li>径向基核函数</li>
+</ul>
+
+<p><img src="media/15378026039310/15384721217035.jpg" alt=""/></p>
+
+<pre><code class="language-text">def kernelTrans(X, A, kTup):
+    &#39;&#39;&#39;
+    核函数
+    :param X:
+    :param A:
+    :param kTup:包含核函数信息的元组
+    :return:
+    &#39;&#39;&#39;
+    m, n = shape(X)
+    K = mat(zeros((m, 1)))
+    if kTup[0]==&#39;lin&#39;:
+        K = X * A.T
+    elif kTup[0]==&#39;rbf&#39;:
+        for j in range(m):
+            deltaRow = X[j, :] - A
+            K[j] = deltaRow*deltaRow.T
+        K = exp(K/(-1*kTup[1]**2))
+    else:
+        raise NameError(&#39;Houston We Have a Problem -- That Kernel is not recognized&#39;)
+    return K
+</code></pre>
+
+<p>测试</p>
+
+<pre><code class="language-text">def testRbf(k1=1.3):
+    dataArr,labelArr = loadDataSet(&#39;testSetRBF.txt&#39;)
+    b,alphas = smoP(dataArr, labelArr, 200, 0.0001, 10000, (&#39;rbf&#39;, k1))
+    datMat=mat(dataArr)
+    labelMat = mat(labelArr).transpose()
+    svInd=nonzero(alphas.A&gt;0)[0]
+    sVs=datMat[svInd]
+    labelSV = labelMat[svInd]
+    print(&quot;there are %d Support Vectors&quot; % shape(sVs)[0])
+    m, n = shape(datMat)
+    errorCount = 0
+    for i in range(m):
+        kernelEval = kernelTrans(sVs, datMat[i, :], (&#39;rbf&#39;, k1))
+        predict = kernelEval.T * multiply(labelSV, alphas[svInd]) + b
+        if sign(predict) != sign(labelArr[i]):
+            errorCount += 1
+    print(&quot;the training error rate is: %f&quot; % (float(errorCount)/m))
+    dataArr, labelArr = loadDataSet(&#39;testSetRBF2.txt&#39;)
+    errorCount = 0
+    datMat=mat(dataArr)
+    labelMat = mat(labelArr).transpose()
+    m,n = shape(datMat)
+    for i in range(m):
+        kernelEval = kernelTrans(sVs, datMat[i, :], (&#39;rbf&#39;, k1))
+        predict = kernelEval.T * multiply(labelSV, alphas[svInd]) + b
+        if sign(predict) != sign(labelArr[i]):
+            errorCount += 1
+    print(&quot;the test error rate is: %f&quot; % (float(errorCount)/m))
+</code></pre>
+
+<p><img src="media/15378026039310/15384726353561.jpg" alt=""/></p>
+
+<h4 id="toc_3">0x04 实例1</h4>
+
+<p>基于SVM的手写数字识别</p>
+
+<pre><code class="language-text">def testDigits(kTup=(&#39;rbf&#39;, 10)):
+    dataArr,labelArr = loadImages(&#39;../Ch02/digits/trainingDigits&#39;)
+    b,alphas = smoP(dataArr, labelArr, 200, 0.0001, 10000, kTup)
+    datMat=mat(dataArr)
+    labelMat = mat(labelArr).transpose()
+    svInd=nonzero(alphas.A &gt; 0)[0]
+    sVs=datMat[svInd] 
+    labelSV = labelMat[svInd]
+    print(&quot;there are %d Support Vectors&quot; % shape(sVs)[0])
+    m, n = shape(datMat)
+    errorCount = 0
+    for i in range(m):
+        kernelEval = kernelTrans(sVs, datMat[i, :], kTup)
+        predict = kernelEval.T * multiply(labelSV, alphas[svInd]) + b
+        if sign(predict) != sign(labelArr[i]):
+            errorCount += 1
+    print(&quot;the training error rate is: %f&quot; % (float(errorCount)/m))
+    dataArr, labelArr = loadImages(&#39;testDigits&#39;)
+    errorCount = 0
+    datMat=mat(dataArr)
+    labelMat = mat(labelArr).transpose()
+    m, n = shape(datMat)
+    for i in range(m):
+        kernelEval = kernelTrans(sVs, datMat[i, :], kTup)
+        predict=kernelEval.T * multiply(labelSV, alphas[svInd]) + b
+        if sign(predict)!=sign(labelArr[i]):
+            errorCount += 1
+    print(&quot;the test error rate is: %f&quot; % (float(errorCount)/m))
+</code></pre>
+
+<p><img src="media/15378026039310/15384734295024.jpg" alt=""/></p>
+
+<h4 id="toc_4">0x05 实例2</h4>
+
+<p>XSS Detection</p>
+
+<h5 id="toc_5">0x01 数据</h5>
+
+<p>在github上看到<a href="https://github.com/SparkSharly/DL_for_xss">https://github.com/SparkSharly/DL_for_xss</a> 这个项目，感觉不错，学习一下，数据集项目中已经附带，就直接使用了</p>
+
+<ul>
+<li>eg. normal_examples.csv （20w+取部分）</li>
+</ul>
+
+<p><img src="media/15364845936318/15364860425700.jpg" alt=""/></p>
+
+<ul>
+<li>eg. xssed.csv （4W+取部分）</li>
+</ul>
+
+<p><img src="media/15364845936318/15364859847558.jpg" alt=""/></p>
+
+<h5 id="toc_6">0x02 分词</h5>
+
+<pre><code class="language-text">def GeneSeg(payload):
+    #数字泛化为&quot;0&quot;
+    payload=payload.lower()
+    payload=unquote(unquote(payload))
+    payload,num=re.subn(r&#39;\d+&#39;,&quot;0&quot;,payload)
+    #替换url为”http://u
+    payload,num=re.subn(r&#39;(http|https)://[a-zA-Z0-9\.@&amp;/#!#\?]+&#39;, &quot;http://u&quot;, payload)
+    #分词
+    r = &#39;&#39;&#39;
+        (?x)[\w\.]+?\(
+        |\)
+        |&quot;\w+?&quot;
+        |&#39;\w+?&#39;
+        |http://\w
+        |&lt;/\w+&gt;
+        |&lt;\w+&gt;
+        |&lt;\w+
+        |\w+=
+        |&gt;
+        |[\w\.]+
+    &#39;&#39;&#39;
+    return nltk.regexp_tokenize(payload, r)
+</code></pre>
+
+<p><img src="media/15364845936318/15364866937362.jpg" alt=""/></p>
+
+<h5 id="toc_7">0x03 特征</h5>
+
+<ul>
+<li>建立xss语义模型，构建词汇表</li>
+</ul>
+
+<p>统计高频出现的300词构建词表</p>
+
+<pre><code class="language-text">words=[]
+datas=[]
+with open(&quot;data/xssed.csv&quot;,&quot;r&quot;,encoding=&quot;utf-8&quot;) as f:
+    reader=csv.DictReader(f,fieldnames=[&quot;payload&quot;])
+    for row in reader:
+        payload=row[&quot;payload&quot;]
+        word=GeneSeg(payload)
+        datas.append(word)
+        words+=word
+
+#构建数据集
+def build_dataset(datas,words):
+    count=[[&quot;UNK&quot;,-1]]
+    counter=Counter(words)
+    count.extend(counter.most_common(vocabulary_size-1))
+    #print(count)
+    vocabulary=[c[0] for c in count]
+    #print(vocabulary)
+    data_set=[]
+    for data in datas:
+        d_set=[]
+        for word in data:
+            if word in vocabulary:
+                d_set.append(word)
+            else:
+                d_set.append(&quot;UNK&quot;)
+                count[0][1]+=1
+        data_set.append(d_set)
+    print(data_set)
+</code></pre>
+
+<ul>
+<li>word2vec建模</li>
+</ul>
+
+<pre><code class="language-text">model=Word2Vec(data_set,size=embedding_size,window=skip_window,negative=num_sampled,iter=num_iter)
+</code></pre>
+
+<p><img src="media/15364845936318/15364964059172.jpg" alt=""/></p>
+
+<p>空间维度设置为32维</p>
+
+<p><img src="media/15364845936318/15364985492542.jpg" alt=""/></p>
+
+<p>查看建模结果，与<code>&lt;/script&gt;</code>最语义最相近的词</p>
+
+<p><img src="media/15364845936318/15364953220505.jpg" alt=""/></p>
+
+<ul>
+<li>数据处理</li>
+</ul>
+
+<pre><code class="language-text">def pre_process():
+    with open(vec_dir,&quot;rb&quot;) as f :
+        word2vec=pickle.load(f)
+        #词表（&#39;UNK&#39;: 0, &#39;0&#39;: 1）
+        dictionary=word2vec[&quot;dictionary&quot;]
+        #维度值
+        embeddings=word2vec[&quot;embeddings&quot;]
+        #反向词表（num和word调换，0: &#39;UNK&#39;, 1: &#39;0&#39;）
+        reverse_dictionary = word2vec[&quot;reverse_dictionary&quot;]
+    xssed_data=[]
+    normal_data=[]
+    with open(&quot;data/xssed.csv&quot;,&quot;r&quot;,encoding=&quot;utf-8&quot;) as f:
+        reader = csv.DictReader(f, fieldnames=[&quot;payload&quot;])
+        for row in reader:
+            payload=row[&quot;payload&quot;]
+            #分词[&#39;search=&#39;, &#39;&lt;/script&gt;&#39;, &#39;&lt;img&#39;, &#39;src=&#39;, &#39;worksinchrome&#39;, &#39;colon&#39;, &#39;prompt&#39;, &#39;x0&#39;, &#39;0&#39;, &#39;x0&#39;, &#39;onerror=&#39;, &#39;eval(&#39;, &#39;src&#39;, &#39;)&#39;, &#39;&gt;&#39;]
+            word=GeneSeg(payload)
+            xssed_data.append(word)
+    with open(&quot;data/normal_examples.csv&quot;,&quot;r&quot;,encoding=&quot;utf-8&quot;) as f:
+        reader = csv.DictReader(f, fieldnames=[&quot;payload&quot;])
+        for row in reader:
+            payload=row[&quot;payload&quot;]
+            word=GeneSeg(payload)
+            normal_data.append(word)
+    xssed_num=len(xssed_data)
+    normal_num=len(normal_data)
+    #生成标签[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    xssed_labels=[1]*xssed_num
+    normal_labels=[0]*normal_num
+    datas=xssed_data+normal_data
+    labels=xssed_labels+normal_labels
+    def to_index(data):
+        d_index=[]
+        for word in data:
+            if word in dictionary.keys():
+                d_index.append(dictionary[word])
+            else:
+                d_index.append(dictionary[&quot;UNK&quot;])
+        return d_index
+    #数据转换[23, 5, 34, 14, 0, 0, 0, 0, 1, 0, 81, 0, 0, 3, 2]
+    datas_index=[to_index(data) for data in datas]
+    #长度不足maxlen的用-1在前端填充
+    &#39;&#39;&#39;
+    [[ -1  -1  -1 ...   0   3   2]
+    [ -1  -1  -1 ...  10  17   1]
+    [ -1  -1  -1 ... 150   0  71]
+    ...
+    [ -1  -1  -1 ...  11   2  55]
+    [ -1  -1  -1 ...   5  24   1]
+    [ -1  -1  -1 ...   1   3   5]]
+    &#39;&#39;&#39;
+    datas_index=pad_sequences(datas_index,value=-1,maxlen=maxlen)
+    #从有序列表中选k个作为一个片段返回，eg.[7, 6, 3, 2, 5, 8, 0, 1, 10, 4, 9]
+    rand=random.sample(range(len(datas_index)),len(datas_index))
+    #数据简单随机排序
+    datas=[datas_index[index] for index in rand]
+    labels=[labels[index] for index in rand]
+
+    datas_embed=[]
+    #获取UNK的维度，本例中是32
+    dims=len(embeddings[&quot;UNK&quot;])
+    n=0
+    for data in datas:
+        data_embed = []
+        for d in data:
+            if d != -1:
+                #如果不是填充数据，就把真实纬度值替换
+                data_embed.extend(embeddings[reverse_dictionary[d]])
+            else:
+                data_embed.extend([0.0] * dims)
+        datas_embed.append(data_embed)
+        &#39;&#39;&#39;
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,··· -0.5644003, 0.41219762, -1.2313833, -1.3566964, 
+        -0.74316794, -1.2668883, 1.0586963, 1.5969143, 0.21956278, 1.1538218, -0.35007623, 0.21183407, 
+        -0.53830135, 1.7361579, -0.08175806, -1.1915175, -1.7790002, -1.1044971, 0.40857738]
+        &#39;&#39;&#39;
+        n+=1
+        if n%10000 ==0:
+            print(n)
+    #七成训练，三成测试 
+    train_datas,test_datas,train_labels,test_labels=train_test_split(datas_embed,labels,test_size=0.3)
+    return train_datas,test_datas,train_labels,test_labels
+</code></pre>
+
+<h5 id="toc_8">0x04 SVM训练</h5>
+
+<p>通过SVM算法进行模型训练</p>
+
+<pre><code class="language-text">train_datas, train_labels=pre_process()
+print(&quot;Start Train Job! &quot;)
+start = time.time()
+model=LinearSVC()
+model = SVC(C=1.0, kernel=&quot;linear&quot;)
+model.fit(train_datas,train_labels)
+model.save(model_dir)
+end = time.time()
+print(&quot;Over train job in %f s&quot; % (end - start))
+print(&quot;Start Test Job!&quot;)
+start=time.time()
+pre=model.predict(test_datas)
+end=time.time()
+print(&quot;Over test job in %s s&quot;%(end-start))
+precision = precision_score(test_labels, pre)
+recall = recall_score(test_labels, pre)
+print(&quot;Precision score is :&quot;, precision)
+print(&quot;Recall score is :&quot;, recall)
+with open(model_dir,&quot;wb&quot;) as f:
+    pickle.dump(model,f,protocol=2)
+print(&quot;wirte to &quot;,model_dir)
+</code></pre>
+
+<p>精确率和召回率：</p>
+
+<p><img src="media/15364845936318/15365002216054.jpg" alt=""/></p>
+
+<hr/>
+
+<p><strong>参考</strong></p>
+
+<p>[1] <a href="https://www.manning.com/books/machine-learning-in-action">https://www.manning.com/books/machine-learning-in-action</a></p>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-09-24T23:23:23+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15384024387533.html" 
+					        title="Previous Post: [机器学习笔记]Linear Regression">&laquo; [机器学习笔记]Linear Regression</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15372846889079.html" 
+					        title="Next Post: [机器学习笔记]Logistic Regression">[机器学习笔记]Logistic Regression &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

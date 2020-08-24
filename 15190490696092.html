@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [漏洞分析]PHPMailer < 5.2.18 Remote Code Execution(CVE-2016-10033) - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[漏洞分析]PHPMailer < 5.2.18 Remote Code Execution(CVE-2016-10033)</h1>	
+				<div class="post-data">
+					<time datetime="2017-01-05T22:04:29+08:00" pubdate data-updated="true">2017/01/05</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>&nbsp;
+		
+		<a href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<span id="more"></span><!-- more -->
+
+<p>关键代码如下</p>
+
+<pre><code class="language-text">
+     protected function mailSend($header, $body)
+     {
+       $toArr = array();
+       foreach ($this-&gt;to as $toaddr) {
+           $toArr[] = $this-&gt;addrFormat($toaddr);
+       }
+       $to = implode(&#39;, &#39;, $toArr);
+
+       $params = null;
+       //This sets the SMTP envelope sender which gets turned into a return-path header by the receiver
+       if (!empty($this-&gt;Sender)) {
+           $params = sprintf(&#39;-f%s&#39;, $this-&gt;Sender);
+       }
+       if ($this-&gt;Sender != &#39;&#39; and !ini_get(&#39;safe_mode&#39;)) {
+           $old_from = ini_get(&#39;sendmail_from&#39;);
+           ini_set(&#39;sendmail_from&#39;, $this-&gt;Sender);
+       }
+       $result = false;
+       if ($this-&gt;SingleTo and count($toArr) &gt; 1) {
+           foreach ($toArr as $toAddr) {
+               $result = $this-&gt;mailPassthru($toAddr, $this-&gt;Subject, $body, $header, $params);
+               $this-&gt;doCallback($result, array($toAddr), $this-&gt;cc, $this-&gt;bcc, $this-&gt;Subject, $body, $this-&gt;From);
+           }
+       } else {
+           $result = $this-&gt;mailPassthru($to, $this-&gt;Subject, $body, $header, $params);
+           $this-&gt;doCallback($result, $this-&gt;to, $this-&gt;cc, $this-&gt;bcc, $this-&gt;Subject, $body, $this-&gt;From);
+       }
+       if (isset($old_from)) {
+           ini_set(&#39;sendmail_from&#39;, $old_from);
+       }
+       if (!$result) {
+           throw new phpmailerException($this-&gt;lang(&#39;instantiate&#39;), self::STOP_CRITICAL);
+       }
+       return true;
+     }
+
+</code></pre>
+
+<p>已知问题代码出现在mail()函数，首先定位到<code>$result = $this-&gt;mailPassthru($toAddr, $this-&gt;Subject, $body, $header, $params);</code>这行代码。<br/>
+通过<code>mailPassthru</code>跟踪到下面这段代码</p>
+
+<pre><code class="language-text">private function mailPassthru($to, $subject, $body, $header, $params)
+    {
+        //Check overloading of mail function to avoid double-encoding
+        if (ini_get(&#39;mbstring.func_overload&#39;) &amp; 1) {
+            $subject = $this-&gt;secureHeader($subject);
+        } else {
+            $subject = $this-&gt;encodeHeader($this-&gt;secureHeader($subject));
+        }
+
+        //Can&#39;t use additional_parameters in safe_mode
+        //@link http://php.net/manual/en/function.mail.php
+        if (ini_get(&#39;safe_mode&#39;) or !$this-&gt;UseSendmailOptions or is_null($params)) {
+            $result = @mail($to, $subject, $body, $header);
+        } else {
+            $result = @mail($to, $subject, $body, $header, $params);
+        }
+        return $result;
+    }
+
+</code></pre>
+
+<p>根据这段<code>if (ini_get(&#39;safe_mode&#39;) or !$this-&gt;UseSendmailOptions or is_null($params)) {<br/>
+    $result = @mail($to, $subject, $body, $header);</code>可以看到只有<code>safe_mode</code>没有开启的情况下才存在漏洞。</p>
+
+<p>假设这个函数没有开启，继续追踪到关键函数<code>$result = @mail($to, $subject, $body, $header, $params);</code><br/>
+接下来看一看这个函数到底是怎么绕过的，追踪<code>$params</code>参数<br/>
+在<code>setFrom()</code>函数中发现这个参数</p>
+
+<pre><code class="language-text">public function setFrom($address, $name = &#39;&#39;, $auto = true)
+    {
+        $address = trim($address);
+        $name = trim(preg_replace(&#39;/[\r\n]+/&#39;, &#39;&#39;, $name)); //Strip breaks and trim
+        // Don&#39;t validate now addresses with IDN. Will be done in send().
+        if (($pos = strrpos($address, &#39;@&#39;)) === false or
+            (!$this-&gt;has8bitChars(substr($address, ++$pos)) or !$this-&gt;idnSupported()) and
+            !$this-&gt;validateAddress($address)) {
+            $error_message = $this-&gt;lang(&#39;invalid_address&#39;) . &quot; (setFrom) $address&quot;;
+            $this-&gt;setError($error_message);
+            $this-&gt;edebug($error_message);
+            if ($this-&gt;exceptions) {
+                throw new phpmailerException($error_message);
+            }
+            return false;
+        }
+        $this-&gt;From = $address;
+        $this-&gt;FromName = $name;
+        if ($auto) {
+            if (empty($this-&gt;Sender)) {
+                $this-&gt;Sender = $address;
+            }
+        }
+        return true;
+    }
+</code></pre>
+
+<p>函数中对<code>address</code>参数进行了过滤，既然这样，那问题肯定就是出现在过滤函数中了，继续往下找</p>
+
+<p>过滤函数<code>validateAddress</code></p>
+
+<pre><code class="language-text">public static function validateAddress($address, $patternselect = null)
+    {
+        if (is_null($patternselect)) {
+            $patternselect = self::$validator;
+        }
+        if (is_callable($patternselect)) {
+            return call_user_func($patternselect, $address);
+        }
+        //Reject line breaks in addresses; it&#39;s valid RFC5322, but not RFC5321
+        if (strpos($address, &quot;\n&quot;) !== false or strpos($address, &quot;\r&quot;) !== false) {
+            return false;
+        }
+        if (!$patternselect or $patternselect == &#39;auto&#39;) {
+            //Check this constant first so it works when extension_loaded() is disabled by safe mode
+            //Constant was added in PHP 5.2.4
+            if (defined(&#39;PCRE_VERSION&#39;)) {
+                //This pattern can get stuck in a recursive loop in PCRE &lt;= 8.0.2
+                if (version_compare(PCRE_VERSION, &#39;8.0.3&#39;) &gt;= 0) {
+                    $patternselect = &#39;pcre8&#39;;
+                } else {
+                    $patternselect = &#39;pcre&#39;;
+                }
+            } elseif (function_exists(&#39;extension_loaded&#39;) and extension_loaded(&#39;pcre&#39;)) {
+                //Fall back to older PCRE
+                $patternselect = &#39;pcre&#39;;
+            } else {
+                //Filter_var appeared in PHP 5.2.0 and does not require the PCRE extension
+                if (version_compare(PHP_VERSION, &#39;5.2.0&#39;) &gt;= 0) {
+                    $patternselect = &#39;php&#39;;
+                } else {
+                    $patternselect = &#39;noregex&#39;;
+                }
+            }
+        }
+        switch ($patternselect) {
+            case &#39;pcre8&#39;:
+                /**
+                 * Uses the same RFC5322 regex on which FILTER_VALIDATE_EMAIL is based, but allows dotless domains.
+                 * @link http://squiloople.com/2009/12/20/email-address-validation/
+                 * @copyright 2009-2010 Michael Rushton
+                 * Feel free to use and redistribute this code. But please keep this copyright notice.
+                 */
+                return (boolean)preg_match(
+                    &#39;/^(?!(?&gt;(?1)&quot;?(?&gt;\\\[ -~]|[^&quot;])&quot;?(?1)){255,})(?!(?&gt;(?1)&quot;?(?&gt;\\\[ -~]|[^&quot;])&quot;?(?1)){65,}@)&#39; .
+                    &#39;((?&gt;(?&gt;(?&gt;((?&gt;(?&gt;(?&gt;\x0D\x0A)?[\t ])+|(?&gt;[\t ]*\x0D\x0A)?[\t ]+)?)(\((?&gt;(?2)&#39; .
+                    &#39;(?&gt;[\x01-\x08\x0B\x0C\x0E-\&#39;*-\[\]-\x7F]|\\\[\x00-\x7F]|(?3)))*(?2)\)))+(?2))|(?2))?)&#39; .
+                    &#39;([!#-\&#39;*+\/-9=?^-~-]+|&quot;(?&gt;(?2)(?&gt;[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\x7F]))*&#39; .
+                    &#39;(?2)&quot;)(?&gt;(?1)\.(?1)(?4))*(?1)@(?!(?1)[a-z0-9-]{64,})(?1)(?&gt;([a-z0-9](?&gt;[a-z0-9-]*[a-z0-9])?)&#39; .
+                    &#39;(?&gt;(?1)\.(?!(?1)[a-z0-9-]{64,})(?1)(?5)){0,126}|\[(?:(?&gt;IPv6:(?&gt;([a-f0-9]{1,4})(?&gt;:(?6)){7}&#39; .
+                    &#39;|(?!(?:.*[a-f0-9][:\]]){8,})((?6)(?&gt;:(?6)){0,6})?::(?7)?))|(?&gt;(?&gt;IPv6:(?&gt;(?6)(?&gt;:(?6)){5}:&#39; .
+                    &#39;|(?!(?:.*[a-f0-9]:){6,})(?8)?::(?&gt;((?6)(?&gt;:(?6)){0,4}):)?))?(25[0-5]|2[0-4][0-9]|1[0-9]{2}&#39; .
+                    &#39;|[1-9]?[0-9])(?&gt;\.(?9)){3}))\])(?1)$/isD&#39;,
+                    $address
+                );
+            case &#39;pcre&#39;:
+                //An older regex that doesn&#39;t need a recent PCRE
+                return (boolean)preg_match(
+                    &#39;/^(?!(?&gt;&quot;?(?&gt;\\\[ -~]|[^&quot;])&quot;?){255,})(?!(?&gt;&quot;?(?&gt;\\\[ -~]|[^&quot;])&quot;?){65,}@)(?&gt;&#39; .
+                    &#39;[!#-\&#39;*+\/-9=?^-~-]+|&quot;(?&gt;(?&gt;[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\xFF]))*&quot;)&#39; .
+                    &#39;(?&gt;\.(?&gt;[!#-\&#39;*+\/-9=?^-~-]+|&quot;(?&gt;(?&gt;[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\xFF]))*&quot;))*&#39; .
+                    &#39;@(?&gt;(?![a-z0-9-]{64,})(?&gt;[a-z0-9](?&gt;[a-z0-9-]*[a-z0-9])?)(?&gt;\.(?![a-z0-9-]{64,})&#39; .
+                    &#39;(?&gt;[a-z0-9](?&gt;[a-z0-9-]*[a-z0-9])?)){0,126}|\[(?:(?&gt;IPv6:(?&gt;(?&gt;[a-f0-9]{1,4})(?&gt;:&#39; .
+                    &#39;[a-f0-9]{1,4}){7}|(?!(?:.*[a-f0-9][:\]]){8,})(?&gt;[a-f0-9]{1,4}(?&gt;:[a-f0-9]{1,4}){0,6})?&#39; .
+                    &#39;::(?&gt;[a-f0-9]{1,4}(?&gt;:[a-f0-9]{1,4}){0,6})?))|(?&gt;(?&gt;IPv6:(?&gt;[a-f0-9]{1,4}(?&gt;:&#39; .
+                    &#39;[a-f0-9]{1,4}){5}:|(?!(?:.*[a-f0-9]:){6,})(?&gt;[a-f0-9]{1,4}(?&gt;:[a-f0-9]{1,4}){0,4})?&#39; .
+                    &#39;::(?&gt;(?:[a-f0-9]{1,4}(?&gt;:[a-f0-9]{1,4}){0,4}):)?))?(?&gt;25[0-5]|2[0-4][0-9]|1[0-9]{2}&#39; .
+                    &#39;|[1-9]?[0-9])(?&gt;\.(?&gt;25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}))\])$/isD&#39;,
+                    $address
+                );
+            case &#39;html5&#39;:
+                /**
+                 * This is the pattern used in the HTML5 spec for validation of &#39;email&#39; type form input elements.
+                 * @link http://www.whatwg.org/specs/web-apps/current-work/#e-mail-state-(type=email)
+                 */
+                return (boolean)preg_match(
+                    &#39;/^[a-zA-Z0-9.!#$%&amp;\&#39;*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}&#39; .
+                    &#39;[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/sD&#39;,
+                    $address
+                );
+            case &#39;noregex&#39;:
+                //No PCRE! Do something _very_ approximate!
+                //Check the address is 3 chars or longer and contains an @ that&#39;s not the first or last char
+                return (strlen($address) &gt;= 3
+                    and strpos($address, &#39;@&#39;) &gt;= 1
+                    and strpos($address, &#39;@&#39;) != strlen($address) - 1);
+            case &#39;php&#39;:
+            default:
+                return (boolean)filter_var($address, FILTER_VALIDATE_EMAIL);
+        }
+    }
+
+</code></pre>
+
+<p>看到这段可以分析出两个限制条件，php版本小于5.2.0并且不支持PCRE才有可能调用<code>$patternselect = &#39;noregex&#39;;</code>,<br/>
+假设版本小于5.2.0并且不支持PCRE，看一看<code>noregex</code>如何过滤的</p>
+
+<pre><code class="language-text">case &#39;noregex&#39;:
+    //No PCRE! Do something _very_ approximate!
+    //Check the address is 3 chars or longer and contains an @ that&#39;s not the first or last char
+    return (strlen($address) &gt;= 3
+        and strpos($address, &#39;@&#39;) &gt;= 1
+        and strpos($address, &#39;@&#39;) != strlen($address) - 1);
+
+</code></pre>
+
+<p>只要存在@并且长度大于等于3就好了，那这样就可以任意构造这个参数了。<br/>
+接下来继续分析怎么构造会造成漏洞</p>
+
+<p>这个漏洞的核心是因为php mail()函数漏洞引起的</p>
+
+<p>首先看一下这个函数<code>http://www.w3school.com.cn/php/func_mail_mail.asp</code>的语法</p>
+
+<pre><code class="language-text">语法
+  mail(to,subject,message,headers,parameters)
+参数  描述
+  to    必需。规定邮件的接收者。
+  subject   必需。规定邮件的主题。该参数不能包含任何换行字符。
+  message   必需。规定要发送的消息。
+  headers   必需。规定额外的报头，比如 From, Cc 以及 Bcc。
+  parameters    必需。规定 sendmail 程序的额外参数。
+</code></pre>
+
+<p>声明：下面这段摘自绿盟博客，解释的至少比我易懂</p>
+
+<p>在Linux系统上，mail函数在底层实现中，默认调用Linux的sendmail程序发送邮件。在sendmail程序的参数中，有一个-X选项，用于记录所有的邮件进出流量至log文件中。</p>
+
+<pre><code class="language-text">&gt; -X logfile
+ &gt; Log all traffic in and out of mailers in the indicated log
+ &gt; file. This should only be used as a last resort for debugging
+ &gt; mailer bugs. It will log a lot of data very quickly.
+</code></pre>
+
+<p>通过-X指定log文件记录邮件流量，实际可以达到写文件的效果。<br/>
+例如，如下php代码</p>
+
+<pre><code class="language-text">$to = &#39;Alice@example.com&#39;;
+$subject = &#39;Hello Alice!&#39;;
+$message=‘&lt;?php phhpinfo(); ?&gt;’；
+ $headers = &quot;CC: somebodyelse@example.com&quot;;
+$options = &#39;-OQueueDirectory=/tmp -X/var/www/html/rce.php&#39;;
+mail($to, $subject, $message, $headers, $options);
+ ?&gt;
+ ```
+执行后，查看log文件/var/www/html/rce.php
+
+</code></pre>
+
+<p>17220 &lt;&lt;&lt; To: <a href="mailto:Alice@example.com">Alice@example.com</a><br/>
+ 17220 &lt;&lt;&lt; Subject: Hello Alice!<br/>
+ 17220 &lt;&lt;&lt; X-PHP-Originating-Script: 0:test.php<br/>
+ 17220 &lt;&lt;&lt; CC: <a href="mailto:somebodyelse@example.com">somebodyelse@example.com</a><br/>
+ 17220 &lt;&lt;&lt;<br/>
+ 17220 &lt;&lt;&lt; &lt;?php phpinfo(); ?&gt;<br/>
+ 17220 &lt;&lt;&lt; [EOF]</p>
+
+<pre><code class="language-text">发现被写入了包含在邮件标题或正文中的php代码，通过访问此log文件可以执行预先可控的php代码。
+![image](https://cloud.githubusercontent.com/assets/12745454/21686027/c237df30-d39e-11e6-9721-58f983ffda0a.png)
+
+
+
+关于POC可以看一下这些文章
+
+https://legalhackers.com/videos/PHPMailer-Exploit-Remote-Code-Exec-Vuln-CVE-2016-10033-PoC.html
+http://www.leavesongs.com/PENETRATION/PHPMailer-CVE-2016-10033.html
+https://legalhackers.com/advisories/PHPMailer-Exploit-Remote-Code-Exec-CVE-2016-10033-Vuln.html
+http://blog.nsfocus.net/multiple-php-mail-function-vulnerability-analysis/?utm_source=tuicool&amp;utm_medium=referral
+https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10033
+
+
+</code></pre>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-02-19T22:04:29+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15190491545535.html" 
+					        title="Previous Post: [漏洞分析]CVE-2016-1897/8 - FFMpeg漏洞分析">&laquo; [漏洞分析]CVE-2016-1897/8 - FFMpeg漏洞分析</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15190489343539.html" 
+					        title="Next Post: [BugBountyTips]Local File Inclusion and Remote File Inclusion">[BugBountyTips]Local File Inclusion and Remote File Inclusion &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

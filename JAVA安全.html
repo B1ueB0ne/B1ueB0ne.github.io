@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    JAVA安全 - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 -->  <!-- 这里是category的开始 -->
+<div class="main-content index-page clearfix">
+    <div class="post-lists">
+        <div class="post-lists-body">
+			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+						<div class="item-thumb bg-deepgrey" style="background-image:url(media/15982365857946/15982651286758.jpg);">
+						
+						</div> 
+						<a href="15982365857946.html"> 
+							<div class="item-desc"> 
+								<p>Github发布CodeQL后，一直保持着关注，从17年就有类似的想法在尝试，在CodeQL中有很多不谋而合的点，查询语句刚上手虽然有些别扭，稍微适应了下感觉还好，值得好好学习一下
+
+
+
+
+
+接下来看一下如何发现Java Deserialization Vulnerabilities。
+
+攻击者在Java应用 deserialization时注入不可信数据进而可以执行任意代码。
+
+java.io.ObjectInputStream中的 readObject是个危险方法。常见的用法如下：
+
+ObjectInputStream ois = new ObjectInputStream(input);</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				 
+						<div class="item-slant reverse-slant bg-green"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								 
+								<div class="item-meta-ico bg-ico-code" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+								</div>
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='%E5%AE%89%E5%85%A8%E5%B7%A5%E5%85%B7.html'>安全工具</a>
+								
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15295824918778.html"> 
+							<div class="item-desc"> 
+								<p>http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3253
+
+影响版本（1.7.0~2.4.3）
+
+
+
+调用链分析
+
+MethodClosure
+
+public class MethodClosure extends Closure {
+    private String method;
+
+    public MethodClosure(Object owner, String method) {
+        super(owner);
+        this.method = method;
+        Class c</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15295824918778.html">[漏洞分析]Groovy Deserialization（groovy.util.Expando）</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15236099494494.html"> 
+							<div class="item-desc"> 
+								<p>这里和CVE-2018-1270的修复方案类似，StandardEvaluationContext替换为SimpleEvaluationContext，又看到Expression expression = PARSER.parseExpression(propertyName);，基本可以确定是SpEL注入了
+
+
+
+
+
+补丁分析
+
+https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653
+
+
+
+
+这里和CVE-2018-1270的修复方案类似，St</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15236099494494.html">[漏洞分析]CVE-2018-1273: RCE with Spring Data Commons</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15238466534248.html"> 
+							<div class="item-desc"> 
+								<p>SpEL（Spring Expression Language）是Spring提供的一种表达式语言
+
+
+
+0x00 简介
+
+SpEL（Spring Expression Language）是Spring提供的一种表达式语言
+
+能在运行时构建复杂表达式、存取对象图属性、对象方法调用等，并且能与Spring功能完美整合，如能用来配置Bean定义
+
+表达式语言给静态Java语言增加了动态功能
+
+0x01 表达式执行步骤
+
+SpEL求表达式值时的步骤
+
+1、构造一个解析器
+    SpEL使用ExpressionParser接口表示解析器，提供SpelExpressionParser默认实现
+2、解析</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15238466534248.html">[JAVA安全]Spring Expression Language（SpEL）</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15236105713087.html"> 
+							<div class="item-desc"> 
+								<p>STOMP是一个简单的可互操作的协议, 被用于通过中间服务器在客户端之间进行异步消息传递。它定义了一种在客户端与服务端进行消息传递的文本格式.
+
+
+
+
+
+CVE-2018-1270 
+
+
+
+
+
+
+
+STOMP协议
+
+STOMP是一个简单的可互操作的协议, 被用于通过中间服务器在客户端之间进行异步消息传递。它定义了一种在客户端与服务端进行消息传递的文本格式.
+
+STOMP协议与HTTP协议很相似，它基于TCP协议，使用了以下命令：
+
+CONNECT
+SEND
+SUBSCRIBE
+UNSUBSCRIBE
+BEGIN
+COMMIT
+ABORT
+ACK
+NACK
+DISCONNECT
+
+
+STOMP的</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15236105713087.html">[漏洞分析]CVE-2018-1270: Remote Code Execution with spring-messaging</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15217907327060.html"> 
+							<div class="item-desc"> 
+								<p>0x01 前言 这段时间反思了下，以前分析的那些框架级别漏洞，跟进一遍后就没有然后了，对漏洞的理解还是太浅，达不到举一反三的作用，再看一次fastjson
+
+
+
+0x02 跟进调用链
+
+
+
+JSON.parseObject
+
+
+
+
+JSON是一个抽象类，JSON中有一个静态方法parseObject（String text），将text解析为一个JSONObject对象并返回
+
+
+
+fastjson支持注册ObjectDeserializer实现自定义反序列化。要自定义序列化，首先需要实现一个ObjectDeserializer，然后注册到ParserConfig中
+
+
+
+
+
+
+
+key是@t</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15217907327060.html">[漏洞分析]再看FastJson Unserialization漏洞</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15207487956667.html"> 
+							<div class="item-desc"> 
+								<p>
+
+0x00 框架基础
+
+0x0a 常见框架
+
+0x0b Servlet
+
+0x0c SpringMVC
+
+0x0d Spring Boot
+
+0x0e 其它
+
+0x01 面对单个应用
+
+0x0a 明确需求
+
+0x0b 确定框架
+
+0x0c 文件结构
+
+0x0d 运行流程
+
+0x0e 关键代码审计
+
+0x0f checklist + 黑盒
+
+0x03 权限控制风险
+
+0x04 其它常规漏洞
+
+0x05 面对十几万行代码更新
+
+0x0a 文件过滤
+
+0x0b 风险打标
+
+0x0c 逻辑挖掘
+
+0x0d 黑盒验证
+
+0x05 总结
+</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15207487956667.html">[JAVA安全]Java Web 工程源码安全审计概略</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15211143272807.html"> 
+							<div class="item-desc"> 
+								<p>漏洞公告：https://github.com/alibaba/fastjson/wiki/security_update_20170315
+
+
+
+
+
+0x00 关于漏洞
+
+漏洞公告：https://github.com/alibaba/fastjson/wiki/security_update_20170315
+
+0x01 POC分析
+
+参考的网上的POC
+
+POC
+
+public class FastJsonPoc extends AbstractTranslet {
+    public FastJsonPocCls() throws IOException {
+        Runt</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15211143272807.html">[漏洞分析]FastJson Unserialization</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15190490696092.html"> 
+							<div class="item-desc"> 
+								<p>
+
+关键代码如下
+
+
+     protected function mailSend($header, $body)
+     {
+       $toArr = array();
+       foreach ($this-&gt;to as $toaddr) {
+           $toArr[] = $this-&gt;addrFormat($toaddr);
+       }
+       $to = implode(&#39;, &#39;, $toArr);
+
+       $params = null;
+       //This sets the SMTP envelop</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15190490696092.html">[漏洞分析]PHPMailer < 5.2.18 Remote Code Execution(CVE-2016-10033)</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url();">
+						
+						</div> 
+						<a href="15193950376071.html"> 
+							<div class="item-desc"> 
+								<p>序列化
+
+是指把 Java 对象转换为字节序列的过程
+便于保存在内存、文件、数据库中
+ObjectOutputStream类的 writeObject() 方法可以实现序列化
+
+
+反序列化
+
+是指把字节序列恢复为 Java 对象的过程
+ObjectInputStream 类的 readObject() 方法用于反序列化
+
+
+
+
+
+
+0x00 Serialize and Unserialize
+
+序列化
+
+是指把 Java 对象转换为字节序列的过程
+便于保存在内存、文件、数据库中
+ObjectOutputStream类的 writeObject() 方法可以实现序列化
+
+
+反序列化
+
+是指把字节</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15193950376071.html">[漏洞分析]JAVA Apache-CommonsCollections Unserialize Vulnerabilities</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>
+								
+			    			<a class='category' href='%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html'>漏洞分析</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			 
+		</div>
+	</div>
+<!-- 底部导航条 -->
+	<nav class="lists-navigator clearfix" style="clear: all;">
+            <ol class="page-navigator">
+            
+            	<li class="  disabled "><a href="#index"><span aria-hidden="true">&larr;</span> 上一页</a></li>
+            
+
+				<li class=""><a href="archives.html">归档</a></li>
+
+			
+            	<li class=" disabled "><a href="#index">下一页 <span aria-hidden="true">&rarr;</span></a></li>
+            
+            </ol>
+     </nav>
+</div>
+</div>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

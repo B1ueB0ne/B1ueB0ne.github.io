@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+
+
+    <title>
+      
+    [基础知识]XSS利用之Cookie - B1ueB0ne
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">Index</a>
+        
+        <a href="archives.html">Archives</a>
+        
+        <a href="about.html">About</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">Index</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">Archives</a>
+          </li>
+          
+          <li>
+          <a href="about.html">About</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">[基础知识]XSS利用之Cookie</h1>	
+				<div class="post-data">
+					<time datetime="2016-10-03T21:54:42+08:00" pubdate data-updated="true">2016/10/03</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='WEB%E5%AE%89%E5%85%A8.html'>WEB安全</a>&nbsp;
+		
+		<a href='%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91.html'>安全开发</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<h3 id="toc_0">0x01 什么是cookie</h3>
+
+<p>cookie是浏览器提供的一种机制，它将document对象的cookie属性提供给JavaScript。<br/>
+可以由JavaScript对其进行控制，而并不是JavaScript本身的性质。</p>
+
+<span id="more"></span><!-- more -->
+
+<p>cookie是存于用户硬盘的一个文件，这个文件通常对应于一个域名，当浏览器再次访问这个域名时，便使这个cookie可用。<br/>
+因此，cookie可以跨越一个域名下的多个网页，但不能跨越多个域名使用。<br/>
+不同的浏览器对cookie的实现也不一样，但其性质是相同的。<br/>
+cookie机制将信息存储于用户硬盘，因此可以作为全局变量，这是它最大的一个优点。<br/>
+它可以用于以下几种场合：</p>
+
+<ul>
+<li>保存用户登录状态。例如将用户id存储于一个cookie内，这样当用户下次访问该页面时就不需要重新登录了，现在很多论坛和社区都提供这样的功能。cookie还可以设置过期时间，当超过时间期限后，cookie就会自动消失。因此，系统往往可以提示用户保持登录状态的时间：常见选项有一个月、三个月、一年等。</li>
+<li>跟踪用户行为。例如一个天气预报网站，能够根据用户选择的地区显示当地的天气情况。如果每次都需要选择所在地是烦琐的，当利用了cookie后就会显得很人性化了，系统能够记住上一次访问的地区，当下次再打开该页面时，它就会自动显示上次用户所在地区的天气情况。因为一切都是在后台完成，所以这样的页面就像为某个用户所定制的一样，使用起来非常方便。</li>
+<li>定制页面。如果网站提供了换肤或更换布局的功能，那么可以使用cookie来记录用户的选项，例如：背景色、分辨率等。当用户下次访问时，仍然可以保存上一次访问的界面风格。</li>
+<li>创建购物车。正如在前面的例子中使用cookie来记录用户需要购买的商品一样，在结账的时候可以统一提交。例如淘宝网就使用cookie记录了用户曾经浏览过的商品，方便随时进行比较。</li>
+</ul>
+
+<p>当然，上述应用仅仅是cookie能完成的部分应用，还有更多的功能需要全局变量。cookie的缺点主要集中于安全性和隐私保护.<br/>
+主要包括以下几种：</p>
+
+<ul>
+<li>cookie可能被禁用。当用户非常注重个人隐私保护时，他很可能禁用浏览器的cookie功能；</li>
+<li>cookie是与浏览器相关的。这意味着即使访问的是同一个页面，不同浏览器之间所保存的cookie也是不能互相访问的；</li>
+<li>cookie可能被删除。因为每个cookie都是硬盘上的一个文件，因此很有可能被用户删除；</li>
+<li>cookie安全性不够高。所有的cookie都是以纯文本的形式记录于文件中，因此如果要保存用户名密码等信息时，最好事先经过加密处理。<br/>
+### 0x02 设置cookie</li>
+</ul>
+
+<p>每个cookie都是一个名/值对，可以把下面这样一个字符串赋值给<code>document.cookie</code>：<br/>
+<code>document.cookie=&quot;userId=828&quot;;</code><br/>
+如果要一次存储多个名/值对，可以使用分号加空格（; ）隔开，例如：<br/>
+<code>document.cookie=&quot;userId=828; userName=hulk&quot;;</code><br/>
+在cookie的名或值中不能使用分号（;）、逗号（,）、等号（=）以及空格。<br/>
+在cookie的名中做到这点很容易，但要保存的值是不确定的。如何来存储这些值呢？<br/>
+方法是用escape()函数进行编码，它能将一些特殊符号使用十六进制表示，例如空格将会编码为“20%”，从而可以存储于cookie值中，而且使用此种方案还可以避免中文乱码的出现。<br/>
+例如：<br/>
+<code>document.cookie=&quot;str=&quot;+escape(&quot;I love ajax&quot;);</code><br/>
+相当于：<br/>
+<code>document.cookie=&quot;str=I%20love%20ajax&quot;;</code><br/>
+当使用escape()编码后，在取出值以后需要使用unescape()进行解码才能得到原来的cookie值。<br/>
+尽管document.cookie看上去就像一个属性，可以赋不同的值。但它和一般的属性不一样，改变它的赋值并不意味着丢失原来的值，例如连续执行下面两条语句：<br/>
+<code>document.cookie=&quot;userId=828&quot;;</code><br/>
+<code>document.cookie=&quot;userName=hulk&quot;;</code><br/>
+这时浏览器将维护两个cookie，分别是userId和userName，因此给<code>document.cookie</code>赋值更像执行类似这样的语句：<br/>
+<code>document.addcookie(&quot;userId=828&quot;);</code><br/>
+<code>document.addcookie(&quot;userName=hulk&quot;);</code><br/>
+事实上，浏览器就是按照这样的方式来设置cookie的，如果要改变一个cookie的值，只需重新赋值，例如：<br/>
+<code>document.cookie=&quot;userId=929&quot;;</code><br/>
+这样就将名为userId的cookie值设置为了929。</p>
+
+<h3 id="toc_1">0x03 获取cookie的值</h3>
+
+<p>下面介绍如何获取cookie的值。cookie的值可以由<code>document.cookie</code>直接获得：<br/>
+<code>var strcookie=document.cookie;</code><br/>
+这将获得以分号隔开的多个名/值对所组成的字符串，这些名/值对包括了该域名下的所有cookie。<br/>
+例如：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+document.cookie=&quot;userId=828&quot;;
+document.cookie=&quot;userName=hulk&quot;;
+var strcookie=document.cookie;
+alert(strcookie);
+//--&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>只能够一次获取所有的cookie值，而不能指定cookie名称来获得指定的值，这正是处理cookie值最麻烦的一部分。用户必须自己分析这个字符串，来获取指定的cookie值，例如，要获取userId的值，可以这样实现：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+//设置两个cookie
+document.cookie=&quot;userId=828&quot;;
+document.cookie=&quot;userName=hulk&quot;;
+//获取cookie字符串
+var strcookie=document.cookie;
+//将多cookie切割为多个名/值对
+var arrcookie=strcookie.split(&quot;; &quot;);
+var userId;
+//遍历cookie数组，处理每个cookie对
+for(var i=0;i&lt;arrcookie.length;i++){
+      var arr=arrcookie[i].split(&quot;=&quot;);
+      //找到名称为userId的cookie，并返回它的值
+      if(&quot;userId&quot;==arr[0]){
+             userId=arr[1];
+             break;
+      }
+}
+alert(userId);
+//--&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>这样就得到了单个cookie的值</p>
+
+<p>用类似的方法，可以获取一个或多个cookie的值，其主要的技巧仍然是字符串和数组的相关操作。</p>
+
+<h3 id="toc_2">0x04 给cookie设置终止日期</h3>
+
+<p>到现在为止，所有的cookie都是单会话cookie，即浏览器关闭后这些cookie将会丢失，事实上这些cookie仅仅是存储在内存中，而没有建立相应的硬盘文件。<br/>
+在实际开发中，cookie常常需要长期保存，例如保存用户登录的状态。这可以用下面的选项来实现：<br/>
+<code>document.cookie=&quot;userId=828; expires=GMT_String&quot;;</code><br/>
+其中GMT_String是以GMT格式表示的时间字符串，这条语句就是将userId这个cookie设置为GMT_String表示的过期时间，超过这个时间，cookie将消失，不可访问。<br/>
+例如：如果要将cookie设置为10天后过期，可以这样实现：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+//获取当前时间
+var date=new Date();
+var expireDays=10;
+//将date设置为10天以后的时间
+date.setTime(date.getTime()+expireDays*24*3600*1000);
+//将userId和userName两个cookie设置为10天后过期
+document.cookie=&quot;userId=828; userName=hulk; expire=&quot;+date.toGMTString();
+//--&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h3 id="toc_3">0x05 删除cookie</h3>
+
+<p>为了删除一个cookie，可以将其过期时间设定为一个过去的时间，例如：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+//获取当前时间
+var date=new Date();
+//将date设置为过去的时间
+date.setTime(date.getTime()-10000);
+//将userId这个cookie删除
+document.cookie=&quot;userId=828; expire=&quot;+date.toGMTString();
+//--&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h3 id="toc_4">0x06 指定可访问cookie的路径</h3>
+
+<p>默认情况下，如果在某个页面创建了一个cookie，那么该页面所在目录中的其他页面也可以访问该cookie。如果这个目录下还有子目录，则在子目录中也可以访问。例如在<code>www.xxxx.com/html/a.html</code>中所创建的cookie，可以被<code>www.xxxx.com/html/b.html</code>或<code>www.xxx.com/ html/ some/c.html</code>所访问，但不能被<code>www.xxxx.com/d.html</code>访问。<br/>
+为了控制cookie可以访问的目录，需要使用path参数设置cookie，语法如下：<br/>
+<code>document.cookie=&quot;name=value; path=cookieDir&quot;;</code><br/>
+其中cookieDir表示可访问cookie的目录。例如：<br/>
+<code>document.cookie=&quot;userId=320; path=/shop&quot;;</code><br/>
+就表示当前cookie仅能在shop目录下使用。<br/>
+如果要使cookie在整个网站下可用，可以将cookie_dir指定为根目录，例如：<br/>
+<code>document.cookie=&quot;userId=320; path=/&quot;;</code></p>
+
+<h3 id="toc_5">0x07 指定可访问cookie的主机名</h3>
+
+<p>和路径类似，主机名是指同一个域下的不同主机，例如：<code>www.google.com</code>和<code>gmail.google.com</code>就是两个不同的主机名。默认情况下，一个主机中创建的cookie在另一个主机下是不能被访问的，但可以通过domain参数来实现对其的控制，其语法格式为：<br/>
+<code>document.cookie=&quot;name=value; domain=cookieDomain&quot;;</code><br/>
+以google为例，要实现跨主机访问，可以写为：<br/>
+<code>document.cookie=&quot;name=value;domain=.google.com&quot;;</code><br/>
+这样，所有google.com下的主机都可以访问该cookie。</p>
+
+<h3 id="toc_6">0x08 综合示例：构造通用的cookie处理函数</h3>
+
+<p>cookie的处理过程比较复杂，并具有一定的相似性。因此可以定义几个函数来完成cookie的通用操作，从而实现代码的复用。下面列出了常用的cookie操作及其函数实现。</p>
+
+<h4 id="toc_7">1．添加一个cookie：addcookie(name,value,expireHours)</h4>
+
+<p>该函数接收3个参数：cookie名称，cookie值，以及在多少小时后过期。这里约定expireHours为0时不设定过期时间，即当浏览器关闭时cookie自动消失。该函数实现如下：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+function addcookie(name,value,expireHours){
+      var cookieString=name+&quot;=&quot;+escape(value);
+      //判断是否设置过期时间
+      if(expireHours&gt;0){
+             var date=new Date();
+             date.setTime(date.getTime+expireHours*3600*1000);
+             cookieString=cookieString+&quot;; expire=&quot;+date.toGMTString();
+      }
+      document.cookie=cookieString;
+}
+//--&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h4 id="toc_8">2．获取指定名称的cookie值：getcookie(name)</h4>
+
+<p>该函数返回名称为name的cookie值，如果不存在则返回空，其实现如下：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+function getcookie(name){
+      var strcookie=document.cookie;
+      var arrcookie=strcookie.split(&quot;; &quot;);
+      for(var i=0;i&lt;arrcookie.length;i++){
+            var arr=arrcookie[i].split(&quot;=&quot;);
+            if(arr[0]==name)return arr[1];
+      }
+      return &quot;&quot;;
+}
+//--&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h4 id="toc_9">3．删除指定名称的cookie：deletecookie(name)</h4>
+
+<p>该函数可以删除指定名称的cookie，其实现如下：</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+&lt;!--
+function deletecookie(name){
+       var date=new Date();
+       date.setTime(date.getTime()-10000);
+       document.cookie=name+&quot;=v; expire=&quot;+date.toGMTString();
+}
+//--&gt;
+&lt;/script&gt; 
+</code></pre>
+
+<p>也可以用另一种网上流传的:</p>
+
+<pre><code class="language-text">&lt;script language=&quot;JavaScript&quot; type=&quot;text/JavaScript&quot;&gt;
+function SetCookie(name,value)//两个参数，一个是cookie的名子，一个是值
+{
+    var Days = 30; //此 cookie 将被保存 30 天
+    var exp  = new Date();    //new Date(&quot;December 31, 9998&quot;);
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+    document.cookie = name + &quot;=&quot;+ escape (value) + &quot;;expires=&quot; + exp.toGMTString();
+}
+function getCookie(name)//取cookies函数       
+{
+    var arr = document.cookie.match(new RegExp(&quot;(^| )&quot;+name+&quot;=([^;]*)(;|$)&quot;));
+     if(arr != null) return unescape(arr[2]); return null;
+
+}
+function delCookie(name)//删除cookie
+{
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval=getCookie(name);
+    if(cval!=null) document.cookie= name + &quot;=&quot;+cval+&quot;;expires=&quot;+exp.toGMTString();
+}
+
+SetCookie (&quot;xiaoqi&quot;, &quot;3&quot;)
+alert(getCookie(&#39;xiaoqi&#39;));
+&lt;/script&gt;
+</code></pre>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-02-19T21:54:42+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="15190485285728.html" 
+					        title="Previous Post: [BugBountyTips]容易产生命令执行漏洞的那些函数">&laquo; [BugBountyTips]容易产生命令执行漏洞的那些函数</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15190482929792.html" 
+					        title="Next Post: [BugBountyTips]PHP代码审计tips">[BugBountyTips]PHP代码审计tips &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <p>Since 2016 <br>
+              <span class="credit">Hacked by 
+              <a target="_blank" href="https://www.uxss.net/">B1ueB0ne</a> 
+              </span>
+              <p>Theme Design by <a href="https://www.linpx.com/" target="_blank">Chakhsu</a></p>
+              <p>Migrating to Mweb by <a href="http://metaidea.cn">idken</a></p>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982373638552.html">[胡思乱想]为什么我们会对新事物产生抵触心理</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371852368.html">[IoT安全]2020 IoT Threat Report (简单解读)</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>
