@@ -10,7 +10,7 @@
 
     <title>
       
-    [BugBountyTips]容易产生命令执行漏洞的那些函数 - B1ueB0ne
+    JavaParse(AST)获取Java Web API list - B1ueB0ne
     
     </title>
 
@@ -94,205 +94,332 @@
 		<div class="post-header">
 			<!-- title -->
 			<div class="post-header">
-				<h1 class="post-title itemprop="name headline">[BugBountyTips]容易产生命令执行漏洞的那些函数</h1>	
+				<h1 class="post-title itemprop="name headline">JavaParse(AST)获取Java Web API list</h1>	
 				<div class="post-data">
-					<time datetime="2016-10-10T21:55:28+08:00" pubdate data-updated="true">2016/10/10</time>
+					<time datetime="2020-09-06T16:49:22+08:00" pubdate data-updated="true">2020/09/06</time>
 				</div>
 			</div>
 		</div>
 	<div id="post-content" class="post-content" itemprop="articleBody"> 
 		<p class="post-tags"> 
 		
-		<a href='WEB%E5%AE%89%E5%85%A8.html'>WEB安全</a>&nbsp;
+		<a href='JAVA%E5%AE%89%E5%85%A8.html'>JAVA安全</a>&nbsp;
 		
 		</p>
 	<!-- 正文 -->
 		<p>
-		<span id="more"></span><!-- more -->
+		<p><img src="media/15993821624930/AADB6CC4-5C27-4742-8D9A-79B303C6D550.png" alt="AADB6CC4-5C27-4742-8D9A-79B303C6D550"/></p>
 
-<h3 id="toc_0">一 代码执行函数</h3>
+<p>分享一个人工审计代码时的小Tips</p>
 
-<p>PHP中可以执行代码的函数。如<code>eval()、assert()、</code><code>、system()、exec()、shell_exec()、passthru()、 escapeshellcmd()、pcntl_exec()</code>等</p>
+<p>在审计一个复杂的Web应用时，可能会有几百个WebAPI，如果没有一个API list，要想不漏掉的审计完还是非常费脑筋的</p>
 
-<p>demo </p>
+<h3 id="toc_0">0x00 原理</h3>
 
-<pre><code class="language-text">&lt;?php
-echo `dir`;
-?&gt;
+<p>通过JavaParse解析Java文件，解析出WebAPI list，简单实现效果如下</p>
+
+<p><img src="media/15993821624930/15993822688680.jpg" alt=""/></p>
+
+<p><img src="media/15993821624930/15993822761968.jpg" alt=""/></p>
+
+<p>关于JavaParse</p>
+
+<p><em>Analyse, transform and generate your Java code base.</em></p>
+
+<p><em>In its simplest form, the JavaParser library allows you to interact with Java source code as a Java object representation in a Java environment. More formally we refer to this object representation as an Abstract Syntax Tree (AST).</em></p>
+
+<h3 id="toc_1">0x01 目标</h3>
+
+<p>目标：将下图代码中的WebAPI解析出来</p>
+
+<p><img src="media/15993821624930/15993823053557.jpg" alt=""/></p>
+
+<h3 id="toc_2">0x02 效果</h3>
+
+<p>解析完成后的效果大致是这样的，然后在针对要筛选的条件，对api进行筛选即可，例如<code>RequestMapping</code>等</p>
+
+<pre><code class="language-text">[
+{&quot;name&quot;:&quot;public List&lt;██████████&gt; ██████████(@RequestParam String ██████████)&quot;,&quot;body&quot;:&quot;Optional[{██████████},
+
+{&quot;name&quot;:&quot;public String ██████████(@RequestParam String ██████████)&quot;,&quot;body&quot;:&quot;Optional[{██████████},
+
+{&quot;name&quot;:&quot;public List&lt;██████████&gt; ██████████()&quot;,&quot;body&quot;:&quot;Optional[{██████████},
+
+{&quot;name&quot;:&quot;public String help()&quot;,&quot;body&quot;:&quot;Optional[{██████████}
+]
 </code></pre>
 
-<h3 id="toc_1">二 文件包含代码注射</h3>
+<h3 id="toc_3">0x03 代码实现</h3>
 
-<p>文件包含函数在特定条件下的代码注射，如<code>include()、include_once()、 require()、require_once()</code>。</p>
+<p>Gist:<a href="https://gist.github.com/B1ueB0ne/7ee600305364f76bf5105c98054f62e6">https://gist.github.com/B1ueB0ne/7ee600305364f76bf5105c98054f62e6</a></p>
 
-<p>当<code>allow_url_include=On</code> ，<code>PHP Version&gt;=5.2.0</code> 时，导致代码注射。</p>
+<pre><code class="language-java">package net.uxss.b1ueb0ne.javaparse;
 
-<p>demo </p>
+import ...
 
-<pre><code class="language-text">&lt;?php
-include($_GET[&#39;a&#39;]);
-?&gt;
-</code></pre>
-
-<p>访问<code>http://127.0.0.1/include.php?a=data:text/plain,%3C?php%20phpinfo%28%29;?%3E</code>即<br/>
-执行<code>phpinfo()</code></p>
-
-<h3 id="toc_2">三 正则匹配代码注射</h3>
-
-<p>众所周知的<code>preg_replace()</code>函数导致的代码注射。当<code>pattern</code>中存在/e模式修饰符，即允许执行代码。这里我们分三种情况讨论下</p>
-
-<h4 id="toc_3">3.1 <code>preg_replace() pattern</code> 参数注射</h4>
-
-<p>pattern即第一个参数的代码注射。<br/>
-当<code>magic_quotes_gpc=Off</code>时，导致代码执行。</p>
-
-<p>demo</p>
-
-<pre><code class="language-text">&lt;?php
-echo $regexp = $_GET[&#39;reg&#39;];
-$var = &#39;&lt;php&gt;phpinfo()&lt;/php&gt;&#39;;
-preg_replace(&quot;/&lt;php&gt;(.*?)$regexp&quot;, &#39;\\1&#39;, $var);
-?&gt;
-</code></pre>
-
-<p>访问<code>http://127.0.0.1/preg_replace1.php?reg=%3C\/php%3E/e</code> 即<br/>
-执行<code>phpinfo()</code></p>
-
-<h4 id="toc_4">3.2 <code>preg_replace() replacement</code>参数注射</h4>
-
-<p>replacement即第二个参数的代码注射，导致代码执行。</p>
-
-<p>demo </p>
-
-<pre><code class="language-text">&lt;?
-preg_replace(&quot;/test/e&quot;,$_GET[&#39;h&#39;],&quot;jutst test&quot;);
-?&gt;
-</code></pre>
-
-<p>当我们提交 <a href="http://127.0.0.1/preg_replace2.php?h=phpinfo()">http://127.0.0.1/preg_replace2.php?h=phpinfo()</a> 即<br/>
-执行phpinfo()。</p>
-
-<h4 id="toc_5">3.3 <code>preg_replace()</code>第三个参数注射</h4>
-
-<p>我们通过构造subject参数执行代码。提交：<code>http://127.0.0.1/preg_replace3.php?h=[php]phpinfo()[/php]</code></p>
-
-<p>或者 <code>http://127.0.0.1/preg_replace3.php?h=[php]${phpinfo%28%29}[/php]</code> 导致代码执行</p>
-
-<p>demo</p>
-
-<pre><code class="language-text">&lt;?
-preg_replace(&quot;/\s*\[php\](.+?)\[\/php\]\s*/ies&quot;, &quot;\\1&quot;, $_GET[&#39;h&#39;]);
-?&gt;
-</code></pre>
-
-<h3 id="toc_6">四 动态代码执行</h3>
-
-<h4 id="toc_7">4.1 动态变量代码执行</h4>
-
-<p>demo</p>
-
-<pre><code class="language-text">&lt;?php
-$dyn_func = $_GET[&#39;dyn_func&#39;];
-$argument = $_GET[&#39;argument&#39;];
-$dyn_func($argument);
-?&gt;
-</code></pre>
-
-<p>我们提交 <code>http://127.0.0.1/dyn_func.php?dyn_func=system&amp;argument=ipconfig</code> 执行ipconfig命令</p>
-
-<h4 id="toc_8">4.2 动态函数代码执行</h4>
-
-<p>demo</p>
-
-<pre><code class="language-text">&lt;pre lang=&quot;php&quot; file=&quot;demo42.php&quot; colla=&quot;+&quot;&gt;
-&lt;?php
-$foobar = $_GET[&#39;foobar&#39;];
-$dyn_func = create_function(&#39;$foobar&#39;, &quot;echo $foobar;&quot;);
-$dyn_func(&#39;&#39;);
-?&gt;
-
-</code></pre>
-
-<p>我们提交 <code>http://127.0.0.1/create_function.php?foobar=system%28dir%29</code> 执行dir命令</p>
-
-<h3 id="toc_9">五 其他</h3>
-
-<h4 id="toc_10">5.1 ob_start()函数的代码执行</h4>
-
-<p>demo code 5.1:</p>
-
-<pre><code class="language-text">&lt;pre lang=&quot;php&quot; file=&quot;demo51.php&quot; colla=&quot;+&quot;&gt;
-&lt;?php
-$foobar = &#39;system&#39;;
-ob_start($foobar);
-echo &#39;dir&#39;;
-ob_end_flush();
-?&gt;
-</code></pre>
-
-<h4 id="toc_11">5.2 <code>array_map()</code>函数的代码执行</h4>
-
-<p>demo </p>
-
-<pre><code class="language-text">&lt;pre lang=&quot;php&quot; file=&quot;demo52.php&quot; colla=&quot;+&quot;&gt;
-&lt;?php
-$evil_callback = $_GET[&#39;callback&#39;];
-$some_array = array(0, 1, 2, 3);
-$new_array = array_map($evil_callback, $some_array);
-?&gt;
-&lt;/pre&gt;
-</code></pre>
-
-<p>我们提交 <code>http://127.0.0.1/array_map.php?callback=phpinfo</code> 即执行<code>phpinfo()</code></p>
-
-<h4 id="toc_12">5.3 <code>unserialize()</code>与<code>eval()</code></h4>
-
-<p><code>unserialize（）</code>是PHP中使用率非常高的函数。不正当使用<code>unserialize（）</code>容易导致安全隐患。</p>
-
-<p>demo</p>
-
-<pre><code class="language-text">&lt;pre lang=&quot;php&quot; file=&quot;demo53.php&quot; colla=&quot;+&quot;&gt;
-&lt;?php
-class Example {
-var $var = &#39;&#39;;
-function __destruct() {
-eval($this-&gt;var);
+@Component
+public class MethodDeclare {
+  
+    public JSONArray declareParseCode(String code) {
+        JSONArray declareJsonArray = new JSONArray();
+        CompilationUnit compilationUnit = JavaParser.parse(code);
+      //解析Java源代码并创建抽象语法树。
+      //解析源代码。它从提供程序获取源代码。开头指示可以在源代码中找到的内容（编译单元，块，导入...）
+        try {
+            TypeDeclaration declaration = compilationUnit.getType(0);
+          //返回在此编译单元中声明的类型的列表。
+            List&lt;BodyDeclaration&gt; list = declaration.getMembers();
+          //获取这个类里面的成员
+            for (BodyDeclaration bodyDeclaration : list) {
+              //枚举成员
+                Map&lt;String, String&gt; declareMap = new HashMap&lt;&gt;();
+                if (bodyDeclaration.isMethodDeclaration()) {
+                  //判断是否为方法
+                    MethodDeclaration declareParse = (MethodDeclaration) bodyDeclaration;
+                    declareMap.put(&quot;name&quot;, declareParse.getDeclarationAsString());
+                  //获取方法名
+                    declareMap.put(&quot;body&quot;, declareParse.getBody().toString());
+                  //获取方法body
+                }
+                JSONObject declareJson = JSONObject.parseObject(JSON.toJSONString(declareMap));
+              //解析成字符串
+                declareJsonArray.add(declareJson);
+            }
+            compilationUnit.accept(new VoidVisitorAdapter&lt;Void&gt;() {
+              //不返回任何内容的访问者，其所有访问方法都有一个默认实现，该实现只是以未指定的顺序访问其子方法
+                @Override
+                public void visit(MethodDeclaration n, Void arg) {
+                    super.visit(n, arg);
+                }
+            }, null);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        return declareJsonArray;
+    }
 }
+</code></pre>
+
+<h3 id="toc_4">0x04 parse方法详解</h3>
+
+<p>com.github.javaparser.JavaParser#parse</p>
+
+<pre><code class="language-java">CompilationUnit compilationUnit = JavaParser.parse(code);
+</code></pre>
+
+<pre><code class="language-java">public static CompilationUnit parse(String code) {
+        return simplifiedParse(COMPILATION_UNIT, provider(code));
+    }
+</code></pre>
+
+<p>com.github.javaparser.JavaParser#simplifiedParse</p>
+
+<pre><code class="language-java">private static &lt;T extends Node&gt; T simplifiedParse(ParseStart&lt;T&gt; context, Provider provider) {
+        ParseResult&lt;T&gt; result = new JavaParser(staticConfiguration).parse(context, provider);
+        if (result.isSuccessful()) {
+            return result.getResult().get();
+        }
+        throw new ParseProblemException(result.getProblems());
+    }
+</code></pre>
+
+<p>com.github.javaparser.JavaParser#parse</p>
+
+<pre><code class="language-text">/**
+     * Parses source code.
+     * It takes the source code from a Provider.
+     * The start indicates what can be found in the source code (compilation unit, block, import...)
+     *
+     * @param start refer to the constants in ParseStart to see what can be parsed.
+     * @param provider refer to Providers to see how you can read source. The provider will be closed after parsing.
+     * @param &lt;N&gt; the subclass of Node that is the result of parsing in the start.
+     * @return the parse result, a collection of encountered problems, and some extra data.
+     */
+    public &lt;N extends Node&gt; ParseResult&lt;N&gt; parse(ParseStart&lt;N&gt; start, Provider provider) {
+        assertNotNull(start);
+        assertNotNull(provider);
+        final GeneratedJavaParser parser = getParserForProvider(provider);
+        try {
+            N resultNode = start.parse(parser);
+            ParseResult&lt;N&gt; result = new ParseResult&lt;&gt;(resultNode, parser.problems, parser.getTokens(),
+                    parser.getCommentsCollection());
+
+            configuration.getPostProcessors().forEach(postProcessor -&gt;
+                    postProcessor.process(result, configuration));
+
+            result.getProblems().sort(PROBLEM_BY_BEGIN_POSITION);
+
+            return result;
+        } catch (Exception e) {
+            final String message = e.getMessage() == null ? &quot;Unknown error&quot; : e.getMessage();
+            parser.problems.add(new Problem(message, null, e));
+            return new ParseResult&lt;&gt;(null, parser.problems, parser.getTokens(), parser.getCommentsCollection());
+        } finally {
+            try {
+                provider.close();
+            } catch (IOException e) {
+                // Since we&#39;re done parsing and have our result, we don&#39;t care about any errors.
+            }
+        }
+    }
+</code></pre>
+
+<p>com.github.javaparser.JavaParser#CompilationUnit</p>
+
+<pre><code class="language-text">/*****************************************
+ * THE JAVA LANGUAGE GRAMMAR STARTS HERE *
+ *****************************************/
+
+/*
+ * Program structuring syntax follows.
+ */
+  final public 
+CompilationUnit CompilationUnit() throws ParseException {PackageDeclaration pakage = null;
+        NodeList&lt;ImportDeclaration&gt; imports = emptyList();
+        ImportDeclaration in = null;
+        NodeList&lt;TypeDeclaration&lt;?&gt;&gt; types = emptyList();
+    ModifierHolder modifier;
+        TypeDeclaration&lt;?&gt; tn = null;
+        ModuleDeclaration module = null;
+    try {
+      label_1:
+      while (true) {
+        if (jj_2_1(2)) {
+          ;
+        } else {
+          break label_1;
+        }
+        jj_consume_token(SEMICOLON);
+      }
+      if (jj_2_2(2147483647)) {
+        pakage = PackageDeclaration();
+      } else {
+        ;
+      }
+      label_2:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case ABSTRACT:
+        case CLASS:
+        case _DEFAULT:
+        case ENUM:
+        case FINAL:
+        case IMPORT:
+        case INTERFACE:
+        case NATIVE:
+        case PRIVATE:
+        case PROTECTED:
+        case PUBLIC:
+        case STATIC:
+        case STRICTFP:
+        case SYNCHRONIZED:
+        case TRANSIENT:
+        case VOLATILE:
+        case OPEN:
+        case MODULE:
+        case TRANSITIVE:
+        case SEMICOLON:
+        case AT:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[0] = jj_gen;
+          break label_2;
+        }
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case IMPORT:{
+          in = ImportDeclaration();
+imports = add(imports, in);
+          break;
+          }
+        case ABSTRACT:
+        case CLASS:
+        case _DEFAULT:
+        case ENUM:
+        case FINAL:
+        case INTERFACE:
+        case NATIVE:
+        case PRIVATE:
+        case PROTECTED:
+        case PUBLIC:
+        case STATIC:
+        case STRICTFP:
+        case SYNCHRONIZED:
+        case TRANSIENT:
+        case VOLATILE:
+        case OPEN:
+        case MODULE:
+        case TRANSITIVE:
+        case SEMICOLON:
+        case AT:{
+          modifier = Modifiers();
+          switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+          case CLASS:
+          case INTERFACE:{
+            tn = ClassOrInterfaceDeclaration(modifier);
+types = add(types, tn);
+            break;
+            }
+          case ENUM:{
+            tn = EnumDeclaration(modifier);
+types = add(types, tn);
+            break;
+            }
+          case AT:{
+            tn = AnnotationTypeDeclaration(modifier);
+types = add(types, tn);
+            break;
+            }
+          case OPEN:
+          case MODULE:{
+            module = ModuleDeclaration(modifier);
+            break;
+            }
+          case SEMICOLON:{
+            jj_consume_token(SEMICOLON);
+            break;
+            }
+          default:
+            jj_la1[1] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+          break;
+          }
+        default:
+          jj_la1[2] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      }
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case 0:{
+        jj_consume_token(0);
+        break;
+        }
+      case CTRL_Z:{
+        jj_consume_token(CTRL_Z);
+        break;
+        }
+      default:
+        jj_la1[3] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+return new CompilationUnit(range(token_source.getHomeToken(), token()), pakage, imports, types, module);
+    } catch (ParseException e) {
+recover(EOF, e);
+        final CompilationUnit compilationUnit = new CompilationUnit(range(token_source.getHomeToken(), token()), null, new NodeList&lt;ImportDeclaration&gt;(), new NodeList&lt;TypeDeclaration&lt;?&gt;&gt;(), null);
+        compilationUnit.setParsed(UNPARSABLE);
+        return compilationUnit;
+    }
 }
-unserialize($_GET[&#39;saved_code&#39;]);
-?&gt;
-&lt;/pre&gt;
 </code></pre>
 
-<p>我们提交 <code>http://127.0.0.1/unserialize.php?saved_code=O:7:%22Example%22:1:{s:3:%22var%22;s:10:%22phpinfo%28%29;%22;}</code> 即执行<code>phpinfo()</code></p>
+<p><img src="media/15993821624930/15993823179626.jpg" alt=""/></p>
 
-<h4 id="toc_13">5.4 容易导致安全问题的函数</h4>
-
-<p>同类型函数还有很多</p>
-
-<pre><code class="language-text">array_map()
-usort(), uasort(), uksort()
-array_filter()
-array_reduce()
-array_diff_uassoc(), array_diff_ukey()
-array_udiff(), array_udiff_assoc(), array_udiff_uassoc()
-array_intersect_assoc(), array_intersect_uassoc()
-array_uintersect(), array_uintersect_assoc(), array_uintersect_uassoc()
-array_walk(), array_walk_recursive()
-xml_set_character_data_handler()
-xml_set_default_handler()
-xml_set_element_handler()
-xml_set_end_namespace_decl_handler()
-xml_set_external_entity_ref_handler()
-xml_set_notation_decl_handler()
-xml_set_processing_instruction_handler()
-xml_set_start_namespace_decl_handler()
-xml_set_unparsed_entity_decl_handler()
-stream_filter_register()
-set_error_handler()
-register_shutdown_function()
-register_tick_function()
-</code></pre>
+<p>参考资料：<a href="https://www.javadoc.io/doc/com.github.javaparser">https://www.javadoc.io/doc/com.github.javaparser</a></p>
 
 		</p>
 		<!-- 侧边导航条 -->
@@ -393,22 +520,16 @@ register_tick_function()
 	<!-- 版权声明 -->
 		<p class="post-info" style="color: #BCBDB6">
 				本文由 <a style="color: #BCBDB6" href="#">B1ueB0ne
-				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2018-02-19T21:55:28+08:00
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2020-09-06T16:49:22+08:00
 		</p>
 	<!-- 导航 -->
 			<div id="comments" class="clearfix" style="padding: 0px;">
 				<footer class="post-footer clearfix">	    			
 				    <div class="meta">
 					    
-					    <P style="float: left;">
-					    	<a href="15190500685950.html" 
-					        title="Previous Post: [漏洞分析]Joomla! 3.7 (CVE-2017-8917) 代码分析">&laquo; [漏洞分析]Joomla! 3.7 (CVE-2017-8917) 代码分析</a>
-					    </p>
-					    <p style="float:right; ">
 					    	
-					    	
-					        <a href="15190484827371.html" 
-					        title="Next Post: [基础知识]XSS利用之Cookie">[基础知识]XSS利用之Cookie &raquo;</a>
+					        <a href="15982374410900.html" 
+					        title="Next Post: [胡思乱想]奔涌的后浪与独立思考">[胡思乱想]奔涌的后浪与独立思考 &raquo;</a>
 					    </p> 
 					    
 				    </div>

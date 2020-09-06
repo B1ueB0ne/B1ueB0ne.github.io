@@ -100,6 +100,69 @@
                          	<div class="item-thumb bg-deepgrey" style="background-image:url(media/15190479354925/15982701049042.jpg);">
 						
 						</div> 
+						<a href="15190497698349.html"> 
+							<div class="item-desc"> 
+								<p>关于一些XSS防御的方法
+
+
+
+JSON/JSONP 接口不规范导致 XSS
+
+callback 未转义导致 XSS
+JSONP 输出开头未换行导致 flash 构造攻击
+JSON/JSONP 键值未转义导致 XSS
+
+
+解决方案：
+
+后端通过 token 或 referer 检查防止 CSRF
+对 callback 字段的输出进行限制，对 JSON 内容的键值进行转义，上文中的escapeJson
+ContentType 标准化
+JSONP输出最前面加了两个 \r\n 防止 flash 构造攻击
+
+
+前端模版里的变量展示方式错误导致 XSS
+
+通过预定义函数转义或者利用安全包过滤
+
+前端代码</p> 
+							</div> 
+						</a> 
+<!-- 自定义Post颜色 -->
+				
+						<div class="item-slant reverse-slant bg-deepgrey"></div>
+						
+
+						<div class="item-slant"></div>
+		 				<div class="item-label">
+	  						<div class="item-title">
+	  							<a href="15190497698349.html">[BugBountyTips]XSS Tips 及修复方案</a>
+	  						</div>
+		   					<div class="item-meta clearfix"> 
+<!-- 自定义Icon -->
+								
+		   						<div class="item-meta-ico bg-ico-note" style="background: url(asset/img/bg-ico.png) no-repeat;background-size: 40px auto;">
+		   						</div> 
+								
+
+		   						<div class="item-meta-cat">
+	  							
+			    			<a class='category' href='WEB%E5%AE%89%E5%85%A8.html'>WEB安全</a>
+								
+		   						</div> 
+		   					</div> 
+		   					
+		   				</div> 
+   					</div>
+ 				</div>
+ 			
+				<div class="post-list-item">
+					<div class="post-list-item-container">
+ <!-- 自定post背景图 -->
+					 
+                         	<div class="item-thumb bg-deepgrey" style="background-image:url(media/15190479354925/15982701049042.jpg);">
+						
+						</div> 
 						<a href="15196236125046.html"> 
 							<div class="item-desc"> 
 								<p>.env 文件位于项目根目录下，作为全局环境配置文件。
@@ -898,7 +961,7 @@ ObjectOutputStream类的 writeObject() 方法可以实现序列化
              
             
             <li>
-            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(11)</a>
             <p>
             
             </p>
@@ -976,6 +1039,12 @@ ObjectOutputStream类的 writeObject() 方法可以实现序列化
           
           
          <li>
+           <a href="15993821624930.html">JavaParse(AST)获取Java Web API list</a><br>
+         </li>
+          
+          
+          
+         <li>
            <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
          </li>
           
@@ -995,12 +1064,6 @@ ObjectOutputStream类的 writeObject() 方法可以实现序列化
           
          <li>
            <a href="15982371354139.html">[安全建设]应用安全评审中的三个关键节点及抓手实现</a><br>
-         </li>
-          
-          
-          
-         <li>
-           <a href="15982365857946.html">[JAVA安全]利用CodeQL寻找Java Deserialization Vulnerabilities</a><br>
          </li>
           
           

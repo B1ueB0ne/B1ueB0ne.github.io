@@ -4,7 +4,7 @@
   <title><![CDATA[B1ueB0ne]]></title>
   <link href="https://www.uxss.net/atom.xml" rel="self"/>
   <link href="https://www.uxss.net/"/>
-  <updated>2020-08-24T19:57:17+08:00</updated>
+  <updated>2020-09-06T16:52:15+08:00</updated>
   <id>https://www.uxss.net/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -12,6 +12,328 @@
   </author>
   <generator uri="http://www.coderforart.com/">CoderForArt</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[JavaParse(AST)获取Java Web API list]]></title>
+    <link href="https://www.uxss.net/15993821624930.html"/>
+    <updated>2020-09-06T16:49:22+08:00</updated>
+    <id>https://www.uxss.net/15993821624930.html</id>
+    <content type="html"><![CDATA[
+<p><img src="media/15993821624930/AADB6CC4-5C27-4742-8D9A-79B303C6D550.png" alt="AADB6CC4-5C27-4742-8D9A-79B303C6D550"/></p>
+
+<p>分享一个人工审计代码时的小Tips</p>
+
+<p>在审计一个复杂的Web应用时，可能会有几百个WebAPI，如果没有一个API list，要想不漏掉的审计完还是非常费脑筋的</p>
+
+<h3 id="toc_0">0x00 原理</h3>
+
+<p>通过JavaParse解析Java文件，解析出WebAPI list，简单实现效果如下</p>
+
+<p><img src="media/15993821624930/15993822688680.jpg" alt=""/></p>
+
+<p><img src="media/15993821624930/15993822761968.jpg" alt=""/></p>
+
+<p>关于JavaParse</p>
+
+<p><em>Analyse, transform and generate your Java code base.</em></p>
+
+<p><em>In its simplest form, the JavaParser library allows you to interact with Java source code as a Java object representation in a Java environment. More formally we refer to this object representation as an Abstract Syntax Tree (AST).</em></p>
+
+<h3 id="toc_1">0x01 目标</h3>
+
+<p>目标：将下图代码中的WebAPI解析出来</p>
+
+<p><img src="media/15993821624930/15993823053557.jpg" alt=""/></p>
+
+<h3 id="toc_2">0x02 效果</h3>
+
+<p>解析完成后的效果大致是这样的，然后在针对要筛选的条件，对api进行筛选即可，例如<code>RequestMapping</code>等</p>
+
+<pre><code class="language-text">[
+{&quot;name&quot;:&quot;public List&lt;██████████&gt; ██████████(@RequestParam String ██████████)&quot;,&quot;body&quot;:&quot;Optional[{██████████},
+
+{&quot;name&quot;:&quot;public String ██████████(@RequestParam String ██████████)&quot;,&quot;body&quot;:&quot;Optional[{██████████},
+
+{&quot;name&quot;:&quot;public List&lt;██████████&gt; ██████████()&quot;,&quot;body&quot;:&quot;Optional[{██████████},
+
+{&quot;name&quot;:&quot;public String help()&quot;,&quot;body&quot;:&quot;Optional[{██████████}
+]
+</code></pre>
+
+<h3 id="toc_3">0x03 代码实现</h3>
+
+<p>Gist:<a href="https://gist.github.com/B1ueB0ne/7ee600305364f76bf5105c98054f62e6">https://gist.github.com/B1ueB0ne/7ee600305364f76bf5105c98054f62e6</a></p>
+
+<pre><code class="language-java">package net.uxss.b1ueb0ne.javaparse;
+
+import ...
+
+@Component
+public class MethodDeclare {
+  
+    public JSONArray declareParseCode(String code) {
+        JSONArray declareJsonArray = new JSONArray();
+        CompilationUnit compilationUnit = JavaParser.parse(code);
+      //解析Java源代码并创建抽象语法树。
+      //解析源代码。它从提供程序获取源代码。开头指示可以在源代码中找到的内容（编译单元，块，导入...）
+        try {
+            TypeDeclaration declaration = compilationUnit.getType(0);
+          //返回在此编译单元中声明的类型的列表。
+            List&lt;BodyDeclaration&gt; list = declaration.getMembers();
+          //获取这个类里面的成员
+            for (BodyDeclaration bodyDeclaration : list) {
+              //枚举成员
+                Map&lt;String, String&gt; declareMap = new HashMap&lt;&gt;();
+                if (bodyDeclaration.isMethodDeclaration()) {
+                  //判断是否为方法
+                    MethodDeclaration declareParse = (MethodDeclaration) bodyDeclaration;
+                    declareMap.put(&quot;name&quot;, declareParse.getDeclarationAsString());
+                  //获取方法名
+                    declareMap.put(&quot;body&quot;, declareParse.getBody().toString());
+                  //获取方法body
+                }
+                JSONObject declareJson = JSONObject.parseObject(JSON.toJSONString(declareMap));
+              //解析成字符串
+                declareJsonArray.add(declareJson);
+            }
+            compilationUnit.accept(new VoidVisitorAdapter&lt;Void&gt;() {
+              //不返回任何内容的访问者，其所有访问方法都有一个默认实现，该实现只是以未指定的顺序访问其子方法
+                @Override
+                public void visit(MethodDeclaration n, Void arg) {
+                    super.visit(n, arg);
+                }
+            }, null);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        return declareJsonArray;
+    }
+}
+</code></pre>
+
+<h3 id="toc_4">0x04 parse方法详解</h3>
+
+<p>com.github.javaparser.JavaParser#parse</p>
+
+<pre><code class="language-java">CompilationUnit compilationUnit = JavaParser.parse(code);
+</code></pre>
+
+<pre><code class="language-java">public static CompilationUnit parse(String code) {
+        return simplifiedParse(COMPILATION_UNIT, provider(code));
+    }
+</code></pre>
+
+<p>com.github.javaparser.JavaParser#simplifiedParse</p>
+
+<pre><code class="language-java">private static &lt;T extends Node&gt; T simplifiedParse(ParseStart&lt;T&gt; context, Provider provider) {
+        ParseResult&lt;T&gt; result = new JavaParser(staticConfiguration).parse(context, provider);
+        if (result.isSuccessful()) {
+            return result.getResult().get();
+        }
+        throw new ParseProblemException(result.getProblems());
+    }
+</code></pre>
+
+<p>com.github.javaparser.JavaParser#parse</p>
+
+<pre><code class="language-text">/**
+     * Parses source code.
+     * It takes the source code from a Provider.
+     * The start indicates what can be found in the source code (compilation unit, block, import...)
+     *
+     * @param start refer to the constants in ParseStart to see what can be parsed.
+     * @param provider refer to Providers to see how you can read source. The provider will be closed after parsing.
+     * @param &lt;N&gt; the subclass of Node that is the result of parsing in the start.
+     * @return the parse result, a collection of encountered problems, and some extra data.
+     */
+    public &lt;N extends Node&gt; ParseResult&lt;N&gt; parse(ParseStart&lt;N&gt; start, Provider provider) {
+        assertNotNull(start);
+        assertNotNull(provider);
+        final GeneratedJavaParser parser = getParserForProvider(provider);
+        try {
+            N resultNode = start.parse(parser);
+            ParseResult&lt;N&gt; result = new ParseResult&lt;&gt;(resultNode, parser.problems, parser.getTokens(),
+                    parser.getCommentsCollection());
+
+            configuration.getPostProcessors().forEach(postProcessor -&gt;
+                    postProcessor.process(result, configuration));
+
+            result.getProblems().sort(PROBLEM_BY_BEGIN_POSITION);
+
+            return result;
+        } catch (Exception e) {
+            final String message = e.getMessage() == null ? &quot;Unknown error&quot; : e.getMessage();
+            parser.problems.add(new Problem(message, null, e));
+            return new ParseResult&lt;&gt;(null, parser.problems, parser.getTokens(), parser.getCommentsCollection());
+        } finally {
+            try {
+                provider.close();
+            } catch (IOException e) {
+                // Since we&#39;re done parsing and have our result, we don&#39;t care about any errors.
+            }
+        }
+    }
+</code></pre>
+
+<p>com.github.javaparser.JavaParser#CompilationUnit</p>
+
+<pre><code class="language-text">/*****************************************
+ * THE JAVA LANGUAGE GRAMMAR STARTS HERE *
+ *****************************************/
+
+/*
+ * Program structuring syntax follows.
+ */
+  final public 
+CompilationUnit CompilationUnit() throws ParseException {PackageDeclaration pakage = null;
+        NodeList&lt;ImportDeclaration&gt; imports = emptyList();
+        ImportDeclaration in = null;
+        NodeList&lt;TypeDeclaration&lt;?&gt;&gt; types = emptyList();
+    ModifierHolder modifier;
+        TypeDeclaration&lt;?&gt; tn = null;
+        ModuleDeclaration module = null;
+    try {
+      label_1:
+      while (true) {
+        if (jj_2_1(2)) {
+          ;
+        } else {
+          break label_1;
+        }
+        jj_consume_token(SEMICOLON);
+      }
+      if (jj_2_2(2147483647)) {
+        pakage = PackageDeclaration();
+      } else {
+        ;
+      }
+      label_2:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case ABSTRACT:
+        case CLASS:
+        case _DEFAULT:
+        case ENUM:
+        case FINAL:
+        case IMPORT:
+        case INTERFACE:
+        case NATIVE:
+        case PRIVATE:
+        case PROTECTED:
+        case PUBLIC:
+        case STATIC:
+        case STRICTFP:
+        case SYNCHRONIZED:
+        case TRANSIENT:
+        case VOLATILE:
+        case OPEN:
+        case MODULE:
+        case TRANSITIVE:
+        case SEMICOLON:
+        case AT:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[0] = jj_gen;
+          break label_2;
+        }
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case IMPORT:{
+          in = ImportDeclaration();
+imports = add(imports, in);
+          break;
+          }
+        case ABSTRACT:
+        case CLASS:
+        case _DEFAULT:
+        case ENUM:
+        case FINAL:
+        case INTERFACE:
+        case NATIVE:
+        case PRIVATE:
+        case PROTECTED:
+        case PUBLIC:
+        case STATIC:
+        case STRICTFP:
+        case SYNCHRONIZED:
+        case TRANSIENT:
+        case VOLATILE:
+        case OPEN:
+        case MODULE:
+        case TRANSITIVE:
+        case SEMICOLON:
+        case AT:{
+          modifier = Modifiers();
+          switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+          case CLASS:
+          case INTERFACE:{
+            tn = ClassOrInterfaceDeclaration(modifier);
+types = add(types, tn);
+            break;
+            }
+          case ENUM:{
+            tn = EnumDeclaration(modifier);
+types = add(types, tn);
+            break;
+            }
+          case AT:{
+            tn = AnnotationTypeDeclaration(modifier);
+types = add(types, tn);
+            break;
+            }
+          case OPEN:
+          case MODULE:{
+            module = ModuleDeclaration(modifier);
+            break;
+            }
+          case SEMICOLON:{
+            jj_consume_token(SEMICOLON);
+            break;
+            }
+          default:
+            jj_la1[1] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+          break;
+          }
+        default:
+          jj_la1[2] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      }
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case 0:{
+        jj_consume_token(0);
+        break;
+        }
+      case CTRL_Z:{
+        jj_consume_token(CTRL_Z);
+        break;
+        }
+      default:
+        jj_la1[3] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+return new CompilationUnit(range(token_source.getHomeToken(), token()), pakage, imports, types, module);
+    } catch (ParseException e) {
+recover(EOF, e);
+        final CompilationUnit compilationUnit = new CompilationUnit(range(token_source.getHomeToken(), token()), null, new NodeList&lt;ImportDeclaration&gt;(), new NodeList&lt;TypeDeclaration&lt;?&gt;&gt;(), null);
+        compilationUnit.setParsed(UNPARSABLE);
+        return compilationUnit;
+    }
+}
+</code></pre>
+
+<p><img src="media/15993821624930/15993823179626.jpg" alt=""/></p>
+
+<p>参考资料：<a href="https://www.javadoc.io/doc/com.github.javaparser">https://www.javadoc.io/doc/com.github.javaparser</a></p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[胡思乱想]奔涌的后浪与独立思考]]></title>
@@ -5924,83 +6246,6 @@ if __name__ == &#39;__main__&#39;:
 <p><a href="https://jiayi.space/post/shi-yong-flask-socketiojin-xing-websockettong-xin">参考</a></p>
 
 <p><a href="media/15243290431597/data_trans.zip">源码</a></p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[漏洞分析]CVE-2018-1273: RCE with Spring Data Commons]]></title>
-    <link href="https://www.uxss.net/15236099494494.html"/>
-    <updated>2018-04-13T16:59:09+08:00</updated>
-    <id>https://www.uxss.net/15236099494494.html</id>
-    <content type="html"><![CDATA[
-<p>这里和CVE-2018-1270的修复方案类似，StandardEvaluationContext替换为SimpleEvaluationContext，又看到Expression expression = PARSER.parseExpression(propertyName);，基本可以确定是SpEL注入了</p>
-
-<span id="more"></span><!-- more -->
-
-<p><img src="media/15236099494494/cve-2018-1273.gif" alt="cve-2018-1273"/></p>
-
-<h3 id="toc_0">补丁分析</h3>
-
-<p><a href="https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653">https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653</a></p>
-
-<p><img src="media/15236099494494/15241950741442.jpg" alt=""/><br/>
-<img src="media/15236099494494/15241950952818.jpg" alt=""/></p>
-
-<p>这里和CVE-2018-1270的修复方案类似，StandardEvaluationContext替换为SimpleEvaluationContext，又看到Expression expression = PARSER.parseExpression(propertyName);，基本可以确定是SpEL注入了</p>
-
-<h3 id="toc_1">代码分析（下游）</h3>
-
-<p>从git上下载源码<a href="https://github.com/spring-projects/spring-data-examples">https://github.com/spring-projects/spring-data-examples</a></p>
-
-<p>根据patch的提示设置断点看一下数据流向</p>
-
-<p><img src="media/15236099494494/15241954170838.jpg" alt=""/></p>
-
-<p>传入的值是username</p>
-
-<p><img src="media/15236099494494/15241954802507.jpg" alt=""/></p>
-
-<p>看到setValue，确定是SpEL注入<br/>
-继续往下走，会发现username、password、repeatedPassword三个字段都会经过这几步</p>
-
-<p><img src="media/15236099494494/15241970019444.jpg" alt=""/></p>
-
-<p>既然这样，尝试修改字段名称来执行命令<code>[T(java.lang.Runtime).getRuntime().exec(&#39;open -a calculator.app&#39;)</code>，测试下，确实可以把完整的命令传进去</p>
-
-<p><code>[]是嵌套属性的写法，在[]中间可以写入表达式</code></p>
-
-<p><img src="media/15236099494494/15242034685528.jpg" alt=""/></p>
-
-<p>继续走到setValue处，expression存储的值就是传进来的完整的字段</p>
-
-<p><img src="media/15236099494494/15242036567489.jpg" alt=""/></p>
-
-<p>但是发现命令并没有执行，原因如下</p>
-
-<p><img src="media/15236099494494/15242046809604.jpg" alt=""/></p>
-
-<h3 id="toc_2">POC利用</h3>
-
-<p>水平太菜，参考了一下网上的payload，利用java的反射机制绕过</p>
-
-<p><code>[#this.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;open -a calculator.app&quot;)]</code></p>
-
-<p><code>[#this.getClass().forName(&quot;javax.script.ScriptEngineManager&quot;).newInstance().getEngineByName(&quot;js&quot;).eval(&quot;java.lang.Runtime.getRuntime().exec(&#39;open -a calculator.app&#39;)&quot;)]</code></p>
-
-<p><code>[(#root.getClass().forName(&quot;java.lang.ProcessBuilder&quot;).getConstructor(&#39;foo&#39;.split(&#39;&#39;).getClass()).newInstance(&#39;openxx-axxcalculator.app&#39;.split(&#39;xx&#39;))).start()]</code></p>
-
-<p><img src="media/15236099494494/15242040226247.jpg" alt=""/></p>
-
-<h3 id="toc_3">代码分析（上游）</h3>
-
-<p>太绕了，有点晕</p>
-
-<p>参考：<br/>
-<a href="http://blog.nsfocus.net/cve-2018-1273-analysis/">http://blog.nsfocus.net/cve-2018-1273-analysis/</a><br/>
-<a href="https://pivotal.io/security/cve-2018-1273">https://pivotal.io/security/cve-2018-1273</a><br/>
-<a href="https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653">https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653</a><br/>
-<a href="https://xz.aliyun.com/t/2269">https://xz.aliyun.com/t/2269</a></p>
 
 ]]></content>
   </entry>
