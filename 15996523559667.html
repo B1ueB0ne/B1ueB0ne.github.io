@@ -10,7 +10,7 @@
 
     <title>
       
-    API越权风险检测方式浅谈 - B1ueB0ne
+    [安全建设]API越权风险检测方式浅谈 - B1ueB0ne
     
     </title>
 
@@ -50,11 +50,13 @@
     <div class="navbar-menu"> 
 
         
-        <a href="index.html">Index</a>
+        <a href="index.html">主页</a>
         
-        <a href="archives.html">Archives</a>
+        <a href="archives.html">归类</a>
         
-        <a href="about.html">About</a>
+        <a href="about.html">蓝色骨头</a>
+        
+        <a href="https://www.github.com">GitHub</a>
         
         
     </div> 
@@ -73,15 +75,19 @@
         <ul> 
           
           <li>
-          <a href="index.html">Index</a>
+          <a href="index.html">主页</a>
           </li>
           
           <li>
-          <a href="archives.html">Archives</a>
+          <a href="archives.html">归类</a>
           </li>
           
           <li>
-          <a href="about.html">About</a>
+          <a href="about.html">蓝色骨头</a>
+          </li>
+          
+          <li>
+          <a href="https://www.github.com">GitHub</a>
           </li>
           
         </ul> 
@@ -94,7 +100,7 @@
 		<div class="post-header">
 			<!-- title -->
 			<div class="post-header">
-				<h1 class="post-title itemprop="name headline">API越权风险检测方式浅谈</h1>	
+				<h1 class="post-title itemprop="name headline">[安全建设]API越权风险检测方式浅谈</h1>	
 				<div class="post-data">
 					<time datetime="2020-09-08T23:52:35+08:00" pubdate data-updated="true">2020/09/08</time>
 				</div>
@@ -112,7 +118,7 @@
 		<p>
 		<p><img src="media/15996523559667/timg.jpeg" alt="timg"/></p>
 
-<h3 id="toc_0">0x01 前言</h3>
+<h2 id="toc_0">0x01 前言</h2>
 
 <p>越权漏洞相较于SQLInject、XSS、SSRF等漏洞，最大的不同点在于该漏洞和权限的架构设计具有强相关性，而权限的架构设计又强依赖业务属性，这就导致了几乎每个系统的权限架构都各不相同，自动化检测的难度非常之大，误报率非常高；内部的检测准确率无法有效提升，越权漏洞数量就很难有效的下降</p>
 
@@ -120,7 +126,7 @@
 
 <p>关于批量/自动化越权检测的文章在网路上寥寥无几，开源的工具更是少的可怜（某些大佬手里有牛逼工具除外），今天想要说的是在甲方，特别是应用数量三位数、四位数以上的甲方，在面对大量API时的越权漏洞检测思路探讨</p>
 
-<h3 id="toc_1">0x02 越权风险类型</h3>
+<h2 id="toc_1">0x02 越权风险类型</h2>
 
 <p>越权漏洞的分类及定义在[1]这个笔记里说的已经很详细了，在这里就不赘述了</p>
 
@@ -143,7 +149,7 @@
 </ul></li>
 </ul>
 
-<h3 id="toc_2">0x03 检测方式</h3>
+<h2 id="toc_2">0x03 检测方式</h2>
 
 <p>一个应用，可能只需要一两个小时就可以测试完成；十个应用，顶多也就一周；那一百个呢？一千个呢？</p>
 
@@ -240,7 +246,7 @@
 
 <p>缺点：API数量一多就不灵光了，很难发现复杂的越权</p>
 
-<h3 id="toc_7">0x04 简单思考</h3>
+<h2 id="toc_7">0x04 简单思考</h2>
 
 <p>上边扯了这么一堆越权漏洞的检测方法，但其实并没有解决上边提出的问题</p>
 
@@ -469,7 +475,7 @@
              
             
             <li>
-            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(11)</a>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
             <p>
             
             </p>
@@ -547,7 +553,7 @@
           
           
          <li>
-           <a href="15996523559667.html">API越权风险检测方式浅谈</a><br>
+           <a href="15996523559667.html">[安全建设]API越权风险检测方式浅谈</a><br>
          </li>
           
           
