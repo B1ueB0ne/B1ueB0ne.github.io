@@ -4,7 +4,7 @@
   <title><![CDATA[蓝色骨头]]></title>
   <link href="https://www.uxss.net/atom.xml" rel="self"/>
   <link href="https://www.uxss.net/"/>
-  <updated>2021-07-10T20:20:43+08:00</updated>
+  <updated>2021-07-11T16:16:15+08:00</updated>
   <id>https://www.uxss.net/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -603,7 +603,7 @@ recover(EOF, e);
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[[IoT安全]2020 IoT Threat Report (简单解读)]]></title>
+    <title type="html"><![CDATA[[IoT安全]2020 IoT Threat Report 解读]]></title>
     <link href="https://www.uxss.net/15982371852368.html"/>
     <updated>2020-08-24T10:46:25+08:00</updated>
     <id>https://www.uxss.net/15982371852368.html</id>
