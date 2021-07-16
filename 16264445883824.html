@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <link rel="shortcut icon" href="asset/img/favicon.ico" type="image/vnd.microsoft.icon">
+
+
+
+    <title>
+      
+    微服务架构下的越权风险 - 蓝色骨头
+    
+    </title>
+
+
+  <link href="asset/css/style.css" rel="stylesheet" > 
+  <link href="asset/js/xcode.min.css" rel="stylesheet">
+  <script src="asset/js/headroom.js"></script>
+
+  <!-- <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="asset/css/font-awesome.css">
+  media/15157608604305/favicon.ico
+ -->
+
+  <!-- <script src="asset/highlightjs/highlight.pack.js"></script> -->
+  <!-- <link href="asset/highlightjs/styles/solarized_light.css" media="screen, projection" rel="stylesheet" type="text/css"> -->
+  <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+
+  </head>
+
+  <!-- 主体开始 -->
+  <!-- <body class="" gtools_scp_screen_capture_injected="true"> -->
+  <!-- 上面为主页白底色版本 -->
+    
+<body class="bg-grey" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+<!-- 上面是主页灰底色版本 -->
+
+<!--[if lt IE 8]>
+<div class="browsehappy" role="dialog">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/" target="_blank">升级你的浏览器</a>。
+</div>
+<![endif]-->
+<!-- 头部位置 -->
+
+<header id="header" class="header bg-white headroom">
+  <div class="navbar-container"> 
+    <a href="index.html" class="navbar-logo"><img src="asset/img/langu.JPG"> </a>
+    <div class="navbar-menu"> 
+
+        
+        <a href="index.html">主页</a>
+        
+        <a href="archives.html">归类</a>
+        
+        <a href="https://www.notion.so/2385251d813f4afe8afec5e85484839e">读书</a>
+        
+        <a href="https://www.notion.so/uxss/AboutMe-b2066f60c726435a95d4ab8c6f4e6099">关于我</a>
+        
+        <a href="https://www.notion.so/uxss/Engineering-ea2fbfc2488c4c20bd742c8f43986bab">项目</a>
+        
+        
+    </div> 
+    <!-- 搜索框体 -->
+    <!--  <div class="navbar-search" onclick="">
+        <span class="icon-search"></span>
+        <form id="search" method="post" action="/" role="search">
+          <span class="search-box">
+            <input type="text" id="input" class="input" name="s" required="true" placeholder="Search..." maxlength="30" autocomplete="off">
+          </span>
+        </form>
+    </div> -->
+
+    <div class="navbar-mobile-menu" onclick=""> 
+      <span class="icon-menu cross"><span class="middle"></span></span> 
+        <ul> 
+          
+          <li>
+          <a href="index.html">主页</a>
+          </li>
+          
+          <li>
+          <a href="archives.html">归类</a>
+          </li>
+          
+          <li>
+          <a href="https://www.notion.so/2385251d813f4afe8afec5e85484839e">读书</a>
+          </li>
+          
+          <li>
+          <a href="https://www.notion.so/uxss/AboutMe-b2066f60c726435a95d4ab8c6f4e6099">关于我</a>
+          </li>
+          
+          <li>
+          <a href="https://www.notion.so/uxss/Engineering-ea2fbfc2488c4c20bd742c8f43986bab">项目</a>
+          </li>
+          
+        </ul> 
+    </div> 
+  </div> 
+</header>
+<!-- 头部结束 --> <!-- post 开始 -->
+<div class="bg-white" gtools_scp_screen_capture_injected="true" data-feedly-mini="yes">
+	<article class="main-content page-page" style="max-width: 700px;padding: 110px 25px 20px" itemscope="" itemtype="http://schema.org/Article">
+		<div class="post-header">
+			<!-- title -->
+			<div class="post-header">
+				<h1 class="post-title itemprop="name headline">微服务架构下的越权风险</h1>	
+				<div class="post-data">
+					<time datetime="2020-10-20T22:09:48+08:00" pubdate data-updated="true">2020/10/20</time>
+				</div>
+			</div>
+		</div>
+	<div id="post-content" class="post-content" itemprop="articleBody"> 
+		<p class="post-tags"> 
+		
+		<a href='%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%BE.html'>安全建设</a>&nbsp;
+		
+		</p>
+	<!-- 正文 -->
+		<p>
+		<blockquote>
+<blockquote>
+<p>一篇小文，主要是通过安全的视角来简单讨论一下微服务架构下容易出现的一些去权限安全问题，涉及到开发细节说错的时候还望谅解。</p>
+</blockquote>
+</blockquote>
+
+<h2 id="toc_0">一、微服务与微服务架构</h2>
+
+<p>微服务是一种开发软件的架构和组织方法，其中软件由通过明确定义的 API 进行通信的小型独立服务组成。这些服务由各个小型独立团队负责；采用UNIX设计的哲学，每种服务只做一件事，是一种松耦合的能够被独立开发和部署的无状态化服务。</p>
+
+<p>微服务具有两个关键特性：自主性、专用性，具有敏捷性、灵活扩展、轻松部署、技术自由、可重复使用的代码、弹性等优势[1]。</p>
+
+<p><img src="media/16264445883824/16264446902542.jpg" alt=""/></p>
+
+<p>从上边的描述可以看出，微服务更多的是一种方法，而微服务架构则是实践微服务的具体实现，不同厂商、不同开发的实现方式各有差异，大概架构基本如下图[2]。它使得开发可以专注自由的开发他负责的服务，解决了系统的复杂性，可以独立部署，与DevOps开发流程契合等，这也难怪现在几乎全民微服务了。</p>
+
+<p><img src="media/16264445883824/16264447090384.jpg" alt=""/></p>
+
+<p>但是哪有什么银弹，优点越多的技术带来的负面影响往往越大。</p>
+
+<h2 id="toc_1">二、微服务的访问权限困境</h2>
+
+<p>在微服务架构下，一个应用被拆分为多个微服务，这样一来，原先单体架构下的权限体系就不再能满足微服务的鉴权需求了，每个微服务都需要对自身API进行权限管控，需要对接账号体系和明确哪些角色有权限访问；同时还有来自服务之间的调用等。</p>
+
+<p>在这种情况下，无论是通过session方案还是token方案，都需要开发去自己维护这一权限体系，那么问题就来了。业务产品在后边追，各种发布封网在前边拦，往往会为了完成业务功能而取舍掉权限的部分，又或者不同的开发同学对于鉴权的理解不一致，甚至认为判断有没有登陆就认为已经完成了权限校验。</p>
+
+<p>随着这类API的越来越多，就会发现同类安全问题频繁发生，特别是未授权访问这类低级的漏洞。</p>
+
+<p><img src="media/16264445883824/16264447226782.jpg" alt=""/></p>
+
+<h2 id="toc_2">三、绕不过的API Gateway</h2>
+
+<p>一方面为了管理乱糟糟的API调用关系，一方面为了解决上边提到的风险，微服务的调用需要一个统一管控的部分，也就是API Gateway。现在是不是就不会出现越权漏洞了呢？</p>
+
+<p>想法是美好的，但现实往往啪啪打脸，Gateway的架构缺陷往往会造成更大的风险。</p>
+
+<ul>
+<li>API Gateway 仅仅是个出入口</li>
+</ul>
+
+<p>这类网关往往只起到了一个路由的作用，它可能只有一个域名和简单的路由转发功能，将同一部分业务的API通过同一个域名开发出去，将API的权限校验全部交给相应的开发去搞，当出现未授权访问漏洞时，双方就开始扯皮，这个权限校验不是你应该做的吗？特别是当这业务特别庞大时，几百几千个API都接入，这可真是个灾难～</p>
+
+<ul>
+<li>API Gateway 通过黑名单控制访问权限</li>
+</ul>
+
+<p>有时候需要控制一部分API开放公网另一部分不对外开放，有时候一部分API需要访问控制另一部分可以公开访问等。在解决这类需求时，很多开发会把API Gateway设计成黑名单模式，例如不能对外开发的API需要添加到blacklist中，又或者需要做菜单访问控制的API需要主动去配置。从文字上，这貌似没有什么问题，合情又合理，但是回到人性上，人是健忘的和怕麻烦的，所以就导致经常出现内部API忘了配置blacklist开放公网或忘了配置权限菜单造成未授权访问漏洞的情况。</p>
+
+<ul>
+<li>API自动编排服务</li>
+</ul>
+
+<p>这两年出现了一些提供快速搭建应用能力的平台，通过网关能力，编排能力以及多种类型的服务对接、统一开放的服务市场，来完成服务发现，服务生产，服务消费的全链路的服务流程。这对于非开发的同学开发应用或帮助开发同学快速发布应用，是很有意义的，但是随之而来的就是它的权限校验问题，在编排时，权限判断逻辑是否是必选项、接入账号体系后是否有角色配置关联、是否支持数据权限的校验等等，任何一个点出现问题，整个平台的应用可能都会存在风险。</p>
+
+<p>随着这类情况越来越多，通过应用数量来看业务规模已经不太行的通了，有时候一个应用可能会有几百上千个API[3]，背后又对应着几十上百个开发，对于传统的SDL来说太难落地了[4]，关于API的安全治理，是一个复杂的体系，有机会细聊。</p>
+
+<p>(这难道不是越权漏洞挖掘的思路嘛)</p>
+
+<p><img src="media/16264445883824/16264447430371.jpg" alt=""/></p>
+
+<h2 id="toc_3">四、基于API Gateway权限校验的一些想法</h2>
+
+<p>实际的API Gateway设计涉及到多个方面，安全和性能往往在一个平衡的状态，下边的仅供参考</p>
+
+<ul>
+<li><p>安全工程师可以不介入到每个应用进行安全评审，但是API Gateway类的应用一定要覆盖和持续跟进</p></li>
+<li><p>在调用者和被调用者中间加一层网关，每次调用时进行权限校验。充分利用API网关，完成将身份验证和路由功能</p></li>
+<li><p>在Gateway或账号管理平台上维护API与角色的关系，在Gateway判断API与角色是否匹配，可以解决访问权限(垂直权限)越权的风险</p></li>
+<li><p>当通过API Gateway控制router时，公网可访问的列表用白名单方式，只有主动添加才可以对外开放</p></li>
+<li><p>每个微服务的开发都应该为其数据访问权限负责</p></li>
+</ul>
+
+<p><img src="media/16264445883824/16264447588757.jpg" alt=""/></p>
+
+<h2 id="toc_4">五、这个世界是一个圆</h2>
+
+<p>关于Service Mesh架构我们下次再聊。</p>
+
+<p><img src="media/16264445883824/16264447703425.jpg" alt=""/></p>
+
+<p>每一次开发架构的更迭，都会带来新的安全挑战，现在越来越火的Serverless、FaaS等也一定会带来一系列新的安全挑战，说不定再过一段时间又回到了最初的单体架构。</p>
+
+<p><img src="media/16264445883824/16264447782311.jpg" alt=""/></p>
+
+<p>参考：</p>
+
+<p>[1]<a href="https://aws.amazon.com/cn/microservices/">https://aws.amazon.com/cn/microservices/</a></p>
+
+<p>[2]<a href="http://dockone.io/article/3687">http://dockone.io/article/3687</a></p>
+
+<p>[3]API安全全链路解决方案写了好久，但是还有几个关键点在实践场景中没有跑顺畅，再等等(没有实践，没有发言权)</p>
+
+<p>[4]DevSecOps同样，在实践的路上，还不敢拿出来班门弄斧</p>
+
+<p>[5]图片来源网络</p>
+
+		</p>
+		<!-- 侧边导航条 -->
+		<div id="directory-content" class="directory-content">
+    		<div id="directory" style="margin-left: 50px;margin-top: 120px"></div>
+		</div>
+	<!-- JS -->
+	<script>
+		var postDirectoryBuild = function() {
+		    var postChildren = function children(childNodes, reg) {
+		        var result = [],
+		            isReg = typeof reg === 'object',
+		            isStr = typeof reg === 'string',
+		            node, i, len;
+		        for (i = 0, len = childNodes.length; i < len; i++) {
+		            node = childNodes[i];
+		            if ((node.nodeType === 1 || node.nodeType === 9) &&
+		                (!reg ||
+		                isReg && reg.test(node.tagName.toLowerCase()) ||
+		                isStr && node.tagName.toLowerCase() === reg)) {
+		                result.push(node);
+		            }
+		        }
+		        return result;
+		    },
+		    createPostDirectory = function(article, directory, isDirNum) {
+		        var contentArr = [],
+		            titleId = [],
+		            levelArr, root, level,
+		            currentList, list, li, link, i, len;
+		        levelArr = (function(article, contentArr, titleId) {
+		            var titleElem = postChildren(article.childNodes, /^h\d$/),
+		                levelArr = [],
+		                lastNum = 1,
+		                lastRevNum = 1,
+		                count = 0,
+		                guid = 1,
+		                id = 'directory' + (Math.random() + '').replace(/\D/, ''),
+		                lastRevNum, num, elem;
+		            while (titleElem.length) {
+		                elem = titleElem.shift();
+		                contentArr.push(elem.innerHTML);
+		                num = +elem.tagName.match(/\d/)[0];
+		                if (num > lastNum) {
+		                    levelArr.push(1);
+		                    lastRevNum += 1;
+		                } else if (num === lastRevNum ||
+		                    num > lastRevNum && num <= lastNum) {
+		                    levelArr.push(0);
+		                    lastRevNum = lastRevNum;
+		                } else if (num < lastRevNum) {
+		                    levelArr.push(num - lastRevNum);
+		                    lastRevNum = num;
+		                }
+		                count += levelArr[levelArr.length - 1];
+		                lastNum = num;
+		                elem.id = elem.id || (id + guid++);
+		                titleId.push(elem.id);
+		            }
+		            if (count !== 0 && levelArr[0] === 1) levelArr[0] = 0;
+
+		            return levelArr;
+		        })(article, contentArr, titleId);
+		        currentList = root = document.createElement('ul');
+		        dirNum = [0];
+		        for (i = 0, len = levelArr.length; i < len; i++) {
+		            level = levelArr[i];
+		            if (level === 1) {
+		                list = document.createElement('ul');
+		                if (!currentList.lastElementChild) {
+		                    currentList.appendChild(document.createElement('li'));
+		                }
+		                currentList.lastElementChild.appendChild(list);
+		                currentList = list;
+		                dirNum.push(0);
+		            } else if (level < 0) {
+		                level *= 2;
+		                while (level++) {
+		                    if (level % 2) dirNum.pop();
+		                    currentList = currentList.parentNode;
+		                }
+		            }
+		            dirNum[dirNum.length - 1]++;
+		            li = document.createElement('li');
+		            link = document.createElement('a');
+		            link.href = '#' + titleId[i];
+		            link.innerHTML = !isDirNum ? contentArr[i] :
+		                dirNum.join('.') + ' ' + contentArr[i] ;
+		            li.appendChild(link);
+		            currentList.appendChild(li);
+		        }
+		        directory.appendChild(root);
+		    };
+		    createPostDirectory(document.getElementById('post-content'),document.getElementById('directory'), true);
+		};
+		postDirectoryBuild();
+	</script>	
+	<!-- 版权声明 -->
+		<p class="post-info" style="color: #BCBDB6">
+				本文由 <a style="color: #BCBDB6" href="#">蓝骨
+				</a> 创作，采用 <a style="color: #BCBDB6" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="external nofollow">知识共享署名4.0</a> 国际许可协议进行许可<br>本站文章除注明转载/出处外，均为本站原创或翻译，转载前请务必署名<br>最后编辑时间为: 2021-07-16T22:09:48+08:00
+		</p>
+	<!-- 导航 -->
+			<div id="comments" class="clearfix" style="padding: 0px;">
+				<footer class="post-footer clearfix">	    			
+				    <div class="meta">
+					    
+					    <P style="float: left;">
+					    	<a href="16264450332785.html" 
+					        title="Previous Post: 我的应用安全方法论：路在脚下">&laquo; 我的应用安全方法论：路在脚下</a>
+					    </p>
+					    <p style="float:right; ">
+					    	
+					    	
+					        <a href="15996523559667.html" 
+					        title="Next Post: [安全建设]API越权风险检测方式浅谈">[安全建设]API越权风险检测方式浅谈 &raquo;</a>
+					    </p> 
+					    
+				    </div>
+			  	</footer>
+	<!-- footer end -->
+			</div>		
+	</div>
+</article>
+			<!-- 评论区 -->
+			<div id="respond-post-269" class="comment-container"> 
+				<div id="comments" class="clearfix">
+
+				<script type="text/javascript" src="/pm/hashover/hashover.js"></script>
+<noscript>You must have JavaScript enabled to use the comments.</noscript>
+
+<!-- 评论区结束 -->
+					<div>
+					
+					</div>
+
+				</div>
+			</div>
+</div>
+<!-- headroom -->
+<script type="text/javascript"> 
+(function() {
+    var header = new Headroom(document.querySelector("#header"), {
+        tolerance: 3,
+        offset : 80,
+        classes: {
+          initial: "animated",
+          pinned: "slideDown",
+          unpinned: "slideUp"
+        }
+    });
+    header.init();
+}());
+</script>  <footer id="footer" class="footer" style="background-color: #030501;color: #FFFFFE;">
+  <div class="footer-meta">
+    <div class="footer-container">
+      <!-- 版权说明 -->
+      <div class="meta-item meta-copyright">
+        <div class="meta-copyright-info">
+          <h2 class="meta-title">INFO</h2>
+          <div class="info-text">  
+              <span class="credit">Copyright © 2016
+              <a target="_blank" href="https://www.uxss.net/">蓝骨</a> 
+              </span>
+              </p> 
+          </div>                  
+        </div>
+      </div>  
+      <!-- Categories -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">CATEGORIES</h2>  
+             
+            
+            <li>
+            <a href="WEB%E5%AE%89%E5%85%A8.html">WEB安全&nbsp;(8)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="JAVA%E5%AE%89%E5%85%A8.html">JAVA安全&nbsp;(10)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="PYTHON.html">PYTHON&nbsp;(2)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            <li>
+            <a href="%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html">漏洞分析&nbsp;(12)</a>
+            <p>
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+            
+            </p>
+            </li>
+            
+             
+      </div>
+      <!-- 最新文章 -->
+      <div class="meta-item meta-comments">
+          <h2 class="meta-title">RECENT POSTS</h2>
+
+          
+          
+         <li>
+           <a href="16264450332785.html">我的应用安全方法论：路在脚下</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="16264445883824.html">微服务架构下的越权风险</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15996523559667.html">[安全建设]API越权风险检测方式浅谈</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15993821624930.html">JavaParse(AST)获取Java Web API list</a><br>
+         </li>
+          
+          
+          
+         <li>
+           <a href="15982374410900.html">[胡思乱想]奔涌的后浪与独立思考</a><br>
+         </li>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           
+
+      </div>
+  </div>
+</div>
+</footer>
+
+<!--评论变量判断 -->
+      
+<!-- 评论end -->
+<script src="asset/chart/all-min.js"></script><script type="text/javascript">$(function(){    var mwebii=0;    var mwebChartEleId = 'mweb-chart-ele-';    $('pre>code').each(function(){        mwebii++;        var eleiid = mwebChartEleId+mwebii;        if($(this).hasClass('language-sequence')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = Diagram.parse($(this).text());            diagram.drawSVG(eleiid,{theme: 'simple'});        }else if($(this).hasClass('language-flow')){            var ele = $(this).addClass('nohighlight').parent();            $('<div id="'+eleiid+'"></div>').insertAfter(ele);            ele.hide();            var diagram = flowchart.parse($(this).text());            diagram.drawSVG(eleiid);        }    });});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_SVG-full"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?5cedc0509c3675ce7544f6ab75111536";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

